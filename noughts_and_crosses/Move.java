@@ -1,7 +1,6 @@
 package noughts_and_crosses;
 
 public class Move {
-	char playerSymbol;
 	int row;
 	int col;
 	
