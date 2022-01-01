@@ -22,22 +22,21 @@ public class HumanPlayer extends Player {
 		System.out.println("Enter the (0-indexed) column you wish to play in: ");
 		col = this.scanner.nextInt();
 		
-//		while (!is_move_confirmed) {
-//			String msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
-//			System.out.println(msg);
-//			System.out.println("Enter the (0-indexed) row you wish to play in: ");
-//			row = this.scanner.nextInt();
-//			System.out.println("Enter the (0-indexed) column you wish to play in: ");
-//			col = this.scanner.nextInt();
-//			msg = String.format("You will play in row %d, column %d. Confirm? y/n ", row, col);
-//			System.out.println(msg);
-//			String confirmation = this.scanner.next().toLowerCase();
-//			System.out.println(confirmation);
-//			if (confirmation == "y") {
-//				System.out.println("confirmed");
-//				is_move_confirmed = true;
-//			}
-//		}
+		while (!is_move_confirmed) {
+			msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
+			System.out.println(msg);
+			System.out.println("Enter the (0-indexed) row you wish to play in: ");
+			row = this.scanner.nextInt();
+			System.out.println("Enter the (0-indexed) column you wish to play in: ");
+			col = this.scanner.nextInt();
+			msg = String.format("You will play in row %d, column %d. Confirm? y/n ", row, col);
+			System.out.println(msg);
+			String confirmation = this.scanner.next().toLowerCase();
+			if (confirmation.equals("y")) {
+				System.out.println("confirmed");
+				is_move_confirmed = true;
+			}
+		}
 		Move move = new Move(row, col);
 		return move;
 		

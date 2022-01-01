@@ -37,7 +37,6 @@ public class Game {
 				result = this.board.getResult();
 			}
 		}
-		
 		return result;
 	}
 	

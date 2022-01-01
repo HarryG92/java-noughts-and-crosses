@@ -3,6 +3,7 @@ package noughts_and_crosses;
 public class Main {
 
 	public static void main(String[] args) {
+		
 		HumanPlayer player1, player2;
 		player1 = new HumanPlayer("H");
 		player2 = new HumanPlayer("M");
