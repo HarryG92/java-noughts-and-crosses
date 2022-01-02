@@ -13,12 +13,5 @@ public interface PlayerInterface {
 	public int lose();
 	
 	public int draw();
-	
-	public int getNumWins();
-	
-	public int getNumDraws();
-	
-	public int getNumLosses();
-	
-	public int getNumForfeits();
+
 }

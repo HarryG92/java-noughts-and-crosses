@@ -16,5 +16,6 @@ The general plan is:
 - A Player abstract class implementing PlayerInterface by adding fields to track statistics and methods to access these, but leaving abstract the methods for playing
 - A HumanPlayer class extending Player to allow a human to play (useful for testing and to see how the trained reinforcement learning player behaves in various situations)
 - One or more AIPlayer classes extending Player and implementing reinforcement learning
+- A MoveSelector class to handle the selection of a Move at random (but with a specified probability)
 - A Game class to manage the interactions between Board, Player, and Move classes and run a single game.
 - A Match class to run multiple games and track results.

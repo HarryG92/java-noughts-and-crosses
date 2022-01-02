@@ -1,10 +1,10 @@
 package noughts_and_crosses;
 
 public abstract class Player implements PlayerInterface {
-	int numWins = 0;
-	int numDraws = 0;
-	int numLosses = 0;
-	int numForfeits = 0; // all forfeits are losses, so numForfeits <= numLosses always
+	public int numWins = 0;
+	public int numDraws = 0;
+	public int numLosses = 0;
+	public int numForfeits = 0; // all forfeits are losses, so numForfeits <= numLosses always
 	String playerID;
 	
 	public abstract Move getMove(Board board);
@@ -23,23 +23,4 @@ public abstract class Player implements PlayerInterface {
 		return this.playerID;
 	}
 	
-	@Override
-	public int getNumWins() {
-		return this.numWins;
-	}
-	
-	@Override
-	public int getNumDraws() {
-		return this.numDraws;
-	}
-	
-	@Override
-	public int getNumLosses() {
-		return this.numLosses;
-	}
-	
-	@Override
-	public int getNumForfeits() {
-		return this.numForfeits;
-	}
 }
