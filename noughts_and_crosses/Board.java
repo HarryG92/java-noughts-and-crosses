@@ -1,5 +1,19 @@
 package noughts_and_crosses;
 
+/**
+ * A Board object represents a noughts-and-crosses board
+ * This is a 3x3 square grid (although the code is written
+ * to allow arbitrary square grids) on which two players
+ * ("noughts" and "crosses") take turns to draw their symbols
+ * ('O' and 'X' respectively). A player wins if they fill
+ * every cell in a single row, column, or main diagonal with
+ * their symbol. A player forfeits if they try to draw a symbol
+ * in a cell that doesn't exist or that has already been filled.
+ * If every cell is filled and no player has won or forfeited,
+ * the game ends in a draw. 
+ * @author H Gulliver
+ *
+ */
 public class Board {
 	public final int BOARD_SIZE = 3, NUMBER_PLAYERS = 2;
 	char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
@@ -17,29 +31,67 @@ public class Board {
 		this.updateSymbol();
 	}
 	
+	// constructor allowing fields to be set instead of made from scratch
+	public Board(char[][] board, int turn) {
+		this.board = board;
+		this.turn = turn;
+		this.updateSymbol();
+	}
+	
+	// copy constructor
+	public Board(Board that) {
+		this(that.board, that.turn);
+	}
+	
+	/**
+	 * checks who the next player will be from turn number
+	 * and updates the nextSymbol accordingly
+	 */
 	private void updateSymbol() {
 		int nextPlayerNumber = this.turn % 2;
 		this.nextSymbol = PLAYERS[nextPlayerNumber];
 	}
 	
-	public int makeMove(Move move) {
+	/** 
+	 * processes a move of the game
+	 * @param move   the Move to be attempted
+	 * @return true if move successful
+	 */
+	public boolean makeMove(Move move) {
+		if (this.isMoveLegal(move)) {
+			int row = move.row;
+			int col = move.col;
+			this.board[row][col] = this.nextSymbol;
+			this.turn += 1;
+			this.updateSymbol();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/** 
+	 * checks if a given move is legal 
+	 * @param move   the Move to be tested
+	 * @return boolean  true if Move is legal in current game state      
+	 */
+	public boolean isMoveLegal(Move move) {
 		int row = move.row;
 		int col = move.col;
 		try {
 			if (this.board[row][col] == ' ') {
-				this.board[row][col] = this.nextSymbol;
-				this.turn += 1;
-				this.updateSymbol();
-				return 0; // success code
+				return true;
 			} else {
-				return 1; // cell already full error
+				return false;
 			}
-		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
-			return 2; // index out of bounds error
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return false;
 		}
-		
 	}
 	
+	/**
+	 * prints the board in a human-readable way
+	 */
 	public void displayBoard() {
 		String printableBoard = "-------\n";
 		for (int row = 0; row < BOARD_SIZE; row++) {
@@ -53,14 +105,14 @@ public class Board {
 		System.out.println(printableBoard);
 	}
 	
+	
+	/**
+	 * determines the result (winner, draw, or unfinished)
+	 * of the game
+	 * @return char  'O' if noughts has won, 'X' if crosses has won,
+	 *               'D' if a draw, ' ' if the game is unfinished 
+	 */
 	public char getResult() {
-		// returns one of player symbols (if that player has won),
-		// 'D' if a draw, or ' ' if the game is ongoing
-		// assumes game is in a valid state:
-		// if both players have attained win conditions,
-		// this will only return one of them (whichever is listed
-		// first in the players array). But this cannot
-		// occur in legal play
 		for (char player : PLAYERS) {
 			if (this.hasWon(player)) {
 				return player;
@@ -72,6 +124,12 @@ public class Board {
 		return ' ';
 	}
 	
+	/**
+	 * checks if every cell on the board is full
+	 * when this happens, the game is over (if no
+	 * player has won, it's a draw)
+	 * @return true if every cell is full
+	 */
 	private boolean isBoardFull() {
 		for (int row = 0; row < BOARD_SIZE; row++) {
 			for (int col = 0; col < BOARD_SIZE; col++) {
@@ -83,6 +141,13 @@ public class Board {
 		return true;
 	}
 	
+	/**
+	 * checks if a particular player has won
+	 * @param playerSymbol  a char, either 'O' or 'X'
+	 * @return true if that player has won (by
+	 *         having a row, column, or main diagonal
+	 *         full with their symbol)
+	 */
 	private boolean hasWon(char playerSymbol) {
 		boolean rowWin, colWin, diagWin;
 		rowWin = this.checkRowWin(playerSymbol);
@@ -92,6 +157,13 @@ public class Board {
 		return (rowWin | colWin | diagWin);
 	}
 	
+	/**
+	 * transposes the board - so rows and columns
+	 * are swapped. This is a convenience method
+	 * for checking victory conditions
+	 * @return a char[][] array representing the
+	 *         transposed state of the board 
+	 */
 	private char[][] transpose() {
 		char [][] transposedBoard = new char[BOARD_SIZE][BOARD_SIZE];
 		for (int row = 0; row < BOARD_SIZE; row++) {
@@ -102,8 +174,16 @@ public class Board {
 		return transposedBoard;
 	}
 	
+	/**
+	 * checks if a particular player has filled
+	 * a row with their symbol (and hence won)
+	 * @param boardState   a char[][] array representing the
+	 *                     current state of the board 
+	 * @param playerSymbol a char ('O' or 'X') representing
+	 *                     the current player
+	 * @return true if playerSymbol has filled any row
+	 */
 	private boolean checkRowWin(char[][] boardState, char playerSymbol) {
-		// check if player has won by filling a row
 		for (int row = 0; row < BOARD_SIZE; row++) {
 			boolean rowWin = true;
 			for (int col = 0; col < BOARD_SIZE; col++) {
@@ -117,10 +197,24 @@ public class Board {
 		
 	}
 	
+	/**
+	 * checks if a particular player has filled
+	 * a row with their symbol (and hence won)
+	 * @param playerSymbol a char ('O' or 'X') representing
+	 *                     the current player
+	 * @return true if playerSymbol has filled any row
+	 */
 	private boolean checkRowWin(char playerSymbol) {
 		return this.checkRowWin(this.board, playerSymbol);
 	}
 	
+	/**
+	 * checks if a particular player has filled
+	 * a column with their symbol (and hence won)
+	 * @param playerSymbol a char ('O' or 'X') representing
+	 *                     the current player
+	 * @return true if playerSymbol has filled any column
+	 */
 	private boolean checkColWin(char playerSymbol) {
 		// prioritised ease-of-writing over efficiency
 		// might rewrite this to copy checkRowWin for performance improvement
@@ -128,8 +222,14 @@ public class Board {
 		return this.checkRowWin(transposedBoard, playerSymbol);
 	}
 	
+	/**
+	 * checks if a particular player has filled
+	 * a diagonal with their symbol (and hence won)
+	 * @param playerSymbol a char ('O' or 'X') representing
+	 *                     the current player
+	 * @return true if playerSymbol has filled any diagonal
+	 */
 	private boolean checkDiagWin(char playerSymbol) {
-		// check if either of the main diagonals provides a win
 		boolean leadingDiag = true, trailingDiag = true;
 		for (int row = 0; row < BOARD_SIZE; row++) {
 			leadingDiag &= (this.board[row][row] == playerSymbol);

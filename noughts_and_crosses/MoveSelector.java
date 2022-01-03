@@ -18,6 +18,8 @@ package noughts_and_crosses;
 public class MoveSelector {
 	
 	public MoveSelector(Board board) {
-		public final Board gameState = board.board;
+		final Board gameState = new Board(board);
 	}
+	
+	private 
 }

@@ -1,6 +1,14 @@
 package noughts_and_crosses;
 import java.util.Scanner;
 
+/**
+ * A HumanPlayer object represents a human playing
+ * the game. It takes keyboard input when needed to
+ * select a move, and reports the current game state
+ * and result as needed
+ * @author H Gulliver
+ *
+ */
 public class HumanPlayer extends Player {
 	
 	public HumanPlayer(String id) {
@@ -15,15 +23,8 @@ public class HumanPlayer extends Player {
 		boolean is_move_confirmed = false;
 		int row = -1, col = -1;
 		
-		String msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
-		System.out.println(msg);
-		System.out.println("Enter the (0-indexed) row you wish to play in: ");
-		row = this.scanner.nextInt();
-		System.out.println("Enter the (0-indexed) column you wish to play in: ");
-		col = this.scanner.nextInt();
-		
 		while (!is_move_confirmed) {
-			msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
+			String msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
 			System.out.println(msg);
 			System.out.println("Enter the (0-indexed) row you wish to play in: ");
 			row = this.scanner.nextInt();
@@ -46,14 +47,14 @@ public class HumanPlayer extends Player {
 	public int forfeit() {
 		this.numForfeits += 1;
 		this.numLosses += 1;
-		System.out.println("You lost by forfeit (you played an illegal move!");
+		System.out.println("You lost by forfeit (you played an illegal move!)");
 		return this.numForfeits;
 	}
 
 	@Override
 	public int winForfeit() {
 		this.numWins += 1;
-		System.out.println("You won by forfeit! (your opponent played an illegal move!");
+		System.out.println("You won by forfeit! (your opponent played an illegal move!)");
 		return this.numWins;
 	}
 
