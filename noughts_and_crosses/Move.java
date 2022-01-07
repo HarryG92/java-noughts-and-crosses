@@ -18,4 +18,10 @@ public class Move {
 		this.row = row;
 		this.col = col;
 	}
+	
+	public boolean isEqual(Move that) {
+		boolean isRowEqual = (this.row == that.row);
+		boolean isColEqual = (this.col == that.col);
+		return (isRowEqual & isColEqual);
+	}
 }
