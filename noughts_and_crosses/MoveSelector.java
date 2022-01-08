@@ -1,5 +1,6 @@
 package noughts_and_crosses;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * A MoveSelector object exposes a method for randomly
@@ -20,11 +21,20 @@ public class MoveSelector {
 	final int BOARD_SIZE;
 	final Board gameState;
 	final HashMap<Move, Integer> moveOdds;
+	private int numMoves = 0;
+	private Move[] moveArray;
+	private int[] oddsArray;
 	
 	public MoveSelector(Board board) {
-		gameState = new Board(board);
-		BOARD_SIZE = gameState.BOARD_SIZE;
-		moveOdds = this.listLegalMoves();
+		this.gameState = new Board(board);
+		this.BOARD_SIZE = this.gameState.BOARD_SIZE;
+		this.moveOdds = this.listLegalMoves();
+		this.moveArray = new Move[numMoves];
+		this.oddsArray = new int[numMoves];
+		int i = 0;
+		for (Move move : this.moveOdds.keySet()) {
+			this.moveArray[i++] = move;
+		}
 	}
 	
 	/**
@@ -41,6 +51,7 @@ public class MoveSelector {
 				Move move = new Move(row, col);
 				if (this.gameState.isMoveLegal(move)) {
 					legalMoves.put(move, 1);
+					this.numMoves += 1;
 				}
 			}
 		}
@@ -63,6 +74,22 @@ public class MoveSelector {
 		}
 	}
 
+	/**
+	 * simplifies the odds by dividing through by the lowest
+	 * odds component, so as to make the lowest component 1
+	 */
+	private void simplifyOddsByMinimum() {
+		int lowestOdds = (int)Math.pow(2, 30); // almost the biggest int possible
+		// need lowestOdds to start high, so minimum-ing it with numbers
+		// makes it lower
+		for (int odds : this.moveOdds.values()) {
+			if (odds != 0) {
+				lowestOdds = Math.min(lowestOdds, odds);
+			}
+		}
+		this.simplifyOdds(lowestOdds);
+	}
+	
 	/**
 	 * divides the odds of the given move by the given factor.
 	 * This is integral division (quotient), so may introduce
@@ -107,12 +134,11 @@ public class MoveSelector {
 		}
 		
 		int currentValue = this.moveOdds.get(move);
-		int newValue = currentValue * multiplier;
-		
-		// need to guard against integer overflow
-		if (newValue >= currentValue) {
+		try {
+			// need to guard against integer overflow
+			int newValue = Math.multiplyExact(currentValue, multiplier);
 			this.moveOdds.put(move, newValue);
-		} else { // if overflow, decrease odds component of all other moves
+		} catch (ArithmeticException e) {
 			for (Move otherMove : this.moveOdds.keySet()) {
 				if (!otherMove.isEqual(move)) {
 					this.decreaseOdds(otherMove, multiplier);
@@ -120,6 +146,77 @@ public class MoveSelector {
 			}
 		}
 		
+		// divide through to simplify the odds if possible
+		this.simplifyOddsByMinimum();
+		
 	}
 
+	/**
+	 * calculates the cumulative sum of an array of ints
+	 * uses Math.addExact to guard against integer overflow,
+	 * so could throw an ArithmeticException
+	 * @param in an Array of ints
+	 * @return an Array of ints whose ith entry is the
+	 *         sum of the first i entries of in
+	 */
+	private int[] cumulativeSum(int[] in) {
+		int[] out = new int[in.length];
+		int total = 0;
+		for (int i = 0; i < in.length; i++) {
+			total = Math.addExact(total, in[i]);
+			out[i] = total;
+		}
+		return out;
+	}
+	
+	/**
+	 * chooses an index of an int array with odds given by the differences
+	 * of the values in it. E.g., if called with {1,2,4,8},
+	 * the odds of returning 0, 1, 2, 3 respectively will be
+	 * 1:1:2:4
+	 * @param accumulated an array of ints, where each
+	 *                    entry is at least as big as the last;
+	 *                    this.cumulativeSum will return such an array
+	 * @return an int corresponding to an index of the input array
+	 */
+	private int chooseRandomIndex(int[] accumulated) {
+		Random random = new Random();
+		int max = accumulated[accumulated.length - 1];
+		int choice = random.nextInt(max);
+		for (int i = 0; i < accumulated.length; i++) {
+			if (accumulated[i] >= choice) {
+				return i;
+			}
+		}
+		return accumulated.length - 1; // should never reach this,
+		// since random.nextInt() is exclusive of upper bound, so
+		// for loop should return. This is needed to convince Eclipse
+		// that the method really will return an int though
+	}
+	
+	/**
+	 * chooses a move to play. Does this by putting the
+	 * current odds in an array, choosing a random int between 0 and
+	 * the sum of that array, and choosing the index where the cumulative
+	 * sum first exceeds the random int; then returns the corresponding Move
+	 * @return a Move object representing the chosen move
+	 */
+	public Move selectMove() {
+		// set up odds array to current odds values
+		for (int i = 0; i < this.numMoves; i++) {
+			Move move = this.moveArray[i];
+			int odds = this.moveOdds.get(move);
+			this.oddsArray[i] = odds;
+		}
+		int[] cumulativeOdds;
+		try {
+			cumulativeOdds = this.cumulativeSum(this.oddsArray);
+		} catch (ArithmeticException e) { // if integer overflow
+			this.simplifyOdds(2);
+			return this.selectMove();
+		}
+		
+		int chosenIndex = this.chooseRandomIndex(cumulativeOdds);
+		return this.moveArray[chosenIndex];
+	}
 }
