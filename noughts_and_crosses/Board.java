@@ -44,6 +44,27 @@ public class Board {
 	}
 	
 	/**
+	 * checks if another Board object represents the same game state 
+	 * @param that the other Board object to be compared to this
+	 * @return true if that Board is the same as this
+	 */
+	public boolean isEqual(Board that) {
+		if (this.BOARD_SIZE != that.BOARD_SIZE) {
+			return false;
+		}
+		
+		for (int row = 0; row < this.BOARD_SIZE; row++) {
+			for (int col = 0; col < this.BOARD_SIZE; col++) {
+				if (this.board[row][col] != that.board[row][col]) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * checks who the next player will be from turn number
 	 * and updates the nextSymbol accordingly
 	 */
@@ -64,6 +85,7 @@ public class Board {
 			this.board[row][col] = this.nextSymbol;
 			this.turn += 1;
 			this.updateSymbol();
+			this.displayBoard(); // for debugging only
 			return true;
 		} else {
 			return false;

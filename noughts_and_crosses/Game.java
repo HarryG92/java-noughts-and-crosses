@@ -38,6 +38,9 @@ public class Game {
 	 */
 	public char runGame() {
 		char result = this.board.getResult();
+		for (PlayerInterface player : this.players) {
+			player.startGame();
+		}
 		while (result == ' ') {
 			int turn = this.board.turn;
 			int playerNumber = turn % NUMBER_PLAYERS;

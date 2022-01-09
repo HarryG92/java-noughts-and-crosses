@@ -2,6 +2,10 @@ package noughts_and_crosses;
 import java.util.HashMap;
 import java.util.Random;
 
+// TODO: simply checking a Move is legal when input to a method is
+// not sufficient - we need to check it's actually one of the specific
+// instances in moveArray
+
 /**
  * A MoveSelector object exposes a method for randomly
  * choosing a legal move in the noughts and crosses game.
@@ -111,7 +115,7 @@ public class MoveSelector {
 	 * @param factor  the factor by which to reduce the odds of the
 	 *                move
 	 */
-	private void decreaseOdds(Move move, int factor) {
+	private void divideOdds(Move move, int factor) {
 		if (factor <= 1) {
 			throw new IllegalArgumentException("The factor must be positive");
 		}
@@ -153,7 +157,7 @@ public class MoveSelector {
 		} catch (ArithmeticException e) {
 			for (Move otherMove : this.moveOdds.keySet()) {
 				if (!otherMove.isEqual(move)) {
-					this.decreaseOdds(otherMove, multiplier);
+					this.divideOdds(otherMove, multiplier);
 				}
 			}
 		}
@@ -163,6 +167,31 @@ public class MoveSelector {
 		
 	}
 
+	/**
+	 * multiplies the odds components of each other move by a given
+	 * int, thereby reducing the odds of the specified move by that int
+	 * @param move   the Move object whose odds are to be decreased
+	 * @param factor the int factor by which to decrease the odds of move
+	 */
+	public void decreaseOdds(Move move, int factor) {
+		for (Move otherMove : this.moveOdds.keySet()) {
+			if (move != otherMove) {
+				this.increaseOdds(otherMove, factor);
+			}
+		}
+	}
+	
+	/**
+	 * sets the odds of the given move to 0, so the move cannot be played
+	 * @param move the Move object whose odds are to be set to 0
+	 */
+	public void zeroOdds(Move move) {
+		if (!this.gameState.isMoveLegal(move)) {
+			throw new IllegalArgumentException("The move is not legal in this game state");
+		}
+		this.moveOdds.put(move, 0);
+	}
+	
 	/**
 	 * calculates the cumulative sum of an array of ints
 	 * uses Math.addExact to guard against integer overflow,

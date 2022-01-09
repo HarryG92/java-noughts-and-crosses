@@ -15,6 +15,11 @@ public class HumanPlayer extends Player {
 		this.playerID = id;
 	}
 	
+	@Override
+	public void startGame() {
+		System.out.println("Starting a new game!");
+	}
+	
 	Scanner scanner = new Scanner(System.in);
 	
 	@Override

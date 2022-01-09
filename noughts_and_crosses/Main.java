@@ -4,30 +4,20 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		Board board = new Board();
-		
-		Move move0 = new Move(0, 0);
-		board.makeMove(move0);
-		Move move1 = new Move(0, 1);
-		board.makeMove(move1);
-		Move move2 = new Move(0, 2);
-		board.makeMove(move2);
-		board.displayBoard();
-		
-		MoveSelector sel1 = new MoveSelector(board);
-		sel1.printOdds();
-		
-		System.out.println("\n");
-		
-		Move move3 = sel1.selectMove();
+		ReinforcementPlayer noughts, crosses;
+		noughts = new ReinforcementPlayer();
+		crosses = new ReinforcementPlayer();
+		PlayerInterface[] players = {noughts, crosses};
 		
 		for (int i = 0; i < 10; i++) {
-			sel1.increaseOdds(move3, 16);
-			sel1.printOdds();
-			Move testMove = sel1.selectMove();
-			System.out.print(testMove.row);
-			System.out.print(testMove.col);
-			System.out.print("\n\n");
+			try {
+				Game game = new Game(players);
+				game.runGame();
+				System.out.println("\n\n\n");
+			} catch (PlayerNumberException e) {
+				System.out.println("wtf? that's not meant to happen!");
+			}
+			
 		}
 		
 		

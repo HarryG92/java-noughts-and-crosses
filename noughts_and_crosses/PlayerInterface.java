@@ -19,6 +19,12 @@ public interface PlayerInterface {
 	public Move getMove(Board board);
 	
 	/**
+	 * alerts the PlayerInterface that the game is starting;
+	 * allows it to run any intial setup it may need
+	 */
+	public void startGame();
+	
+	/**
 	 * tells this player that they forfeit the
 	 * game
 	 * @return the integer count of number
