@@ -4,7 +4,32 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		System.out.println(7/3);
+		Board board = new Board();
+		
+		Move move0 = new Move(0, 0);
+		board.makeMove(move0);
+		Move move1 = new Move(0, 1);
+		board.makeMove(move1);
+		Move move2 = new Move(0, 2);
+		board.makeMove(move2);
+		board.displayBoard();
+		
+		MoveSelector sel1 = new MoveSelector(board);
+		sel1.printOdds();
+		
+		System.out.println("\n");
+		
+		Move move3 = sel1.selectMove();
+		
+		for (int i = 0; i < 10; i++) {
+			sel1.increaseOdds(move3, 16);
+			sel1.printOdds();
+			Move testMove = sel1.selectMove();
+			System.out.print(testMove.row);
+			System.out.print(testMove.col);
+			System.out.print("\n\n");
+		}
+		
 		
 //		HumanPlayer player1, player2;
 //		player1 = new HumanPlayer("H");

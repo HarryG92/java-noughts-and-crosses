@@ -38,6 +38,18 @@ public class MoveSelector {
 	}
 	
 	/**
+	 * prints the available moves and their odds
+	 * intended for debugging and inspection only
+	 */
+	public void printOdds() {
+		for (Move move : this.moveOdds.keySet()) {
+			System.out.print(move.row);
+			System.out.print(move.col);
+			System.out.println(this.moveOdds.get(move));
+		}
+	}
+	
+	/**
 	 * lists all legal moves in the current game state,
 	 * and assigns an equal probability to each of them
 	 * @return a HashMap with Move objects as keys, one for each
@@ -184,7 +196,7 @@ public class MoveSelector {
 		int max = accumulated[accumulated.length - 1];
 		int choice = random.nextInt(max);
 		for (int i = 0; i < accumulated.length; i++) {
-			if (accumulated[i] >= choice) {
+			if (accumulated[i] > choice) {
 				return i;
 			}
 		}
