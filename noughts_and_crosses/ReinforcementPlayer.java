@@ -3,35 +3,37 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 public class ReinforcementPlayer extends Player {
-	private HashMap<Board, MoveSelector> moveSelectors = new HashMap<Board, MoveSelector>();
-	private ArrayList<Board> boardStates;
+	private HashMap<GameState, MoveSelector> moveSelectors = new HashMap<GameState, MoveSelector>();
+	private ArrayList<GameState> seenStates;
 	private ArrayList<Move> movesPlayed;
 	private int numMoves = 0;
 	
 	@Override public void startGame() {
 		this.movesPlayed = new ArrayList<Move>();
-		this.boardStates = new ArrayList<Board>();
+		this.seenStates = new ArrayList<GameState>();
 	}
 	
 	@Override
 	public Move getMove(Board board) {
 		boolean hasSeenBefore = false;
-		Board keyBoard = board;
-		for (Board seenBoard : moveSelectors.keySet()) {
-			if (seenBoard.isEqual(board)) {
-				keyBoard = seenBoard;
+		GameState keyState = board.board;
+		for (GameState seenState : moveSelectors.keySet()) {
+			if (seenState.isEqual(board.board)) {
+				keyState = seenState;
 				hasSeenBefore = true;
+				System.out.println("old");
 				break;
 			}
 		}
 		
 		if (!hasSeenBefore) {
 			MoveSelector selector = new MoveSelector(board);
-			this.moveSelectors.put(board, selector);
+			System.out.println("new");
+			this.moveSelectors.put(board.board, selector);
 		}
 		
-		this.boardStates.add(keyBoard);
-		MoveSelector selector = this.moveSelectors.get(keyBoard);
+		this.seenStates.add(keyState);
+		MoveSelector selector = this.moveSelectors.get(keyState);
 		Move chosenMove = selector.selectMove();
 		this.movesPlayed.add(chosenMove);
 		this.numMoves += 1;
@@ -43,8 +45,8 @@ public class ReinforcementPlayer extends Player {
 	 * @return the Board object that was the game state
 	 *         before the final move this player played
 	 */
-	private Board getFinalBoard() {
-		return this.boardStates.get(this.numMoves - 1);
+	private GameState getFinalState() {
+		return this.seenStates.get(this.numMoves - 1);
 	}
 	
 	/**
@@ -58,9 +60,9 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int forfeit() {
 		this.numForfeits += 1;
-		Board finalBoard = this.getFinalBoard();
+		GameState finalState = this.getFinalState();
 		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalBoard);
+		MoveSelector selector = this.moveSelectors.get(finalState);
 		selector.zeroOdds(finalMove);
 		return numForfeits;
 	}
@@ -76,9 +78,9 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int win() {
 		this.numWins += 1;
-		Board finalBoard = this.getFinalBoard();
+		GameState finalState = this.getFinalState();
 		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalBoard);
+		MoveSelector selector = this.moveSelectors.get(finalState);
 		selector.increaseOdds(finalMove, 2);
 		return numWins;
 	}
@@ -86,9 +88,9 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int lose() {
 		this.numLosses += 1;
-		Board finalBoard = this.getFinalBoard();
+		GameState finalState = this.getFinalState();
 		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalBoard);
+		MoveSelector selector = this.moveSelectors.get(finalState);
 		selector.decreaseOdds(finalMove, 2);
 		return numLosses;
 	}

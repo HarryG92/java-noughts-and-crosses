@@ -4,6 +4,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+		
+		
+		
 		ReinforcementPlayer noughts, crosses;
 		noughts = new ReinforcementPlayer();
 		crosses = new ReinforcementPlayer();

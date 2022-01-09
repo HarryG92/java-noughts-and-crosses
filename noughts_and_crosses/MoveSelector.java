@@ -23,14 +23,15 @@ import java.util.Random;
  */
 public class MoveSelector {
 	final int BOARD_SIZE;
-	final Board gameState;
+	final GameState gameState;
 	final HashMap<Move, Integer> moveOdds;
 	private int numMoves = 0;
 	private Move[] moveArray;
 	private int[] oddsArray;
 	
+	// TODO: needs to be based off game state, not Board! otherwise it doesn't notice the changing state on the board as moves are played!
 	public MoveSelector(Board board) {
-		this.gameState = new Board(board);
+		this.gameState = new GameState(board.board);
 		this.BOARD_SIZE = this.gameState.BOARD_SIZE;
 		this.moveOdds = this.listLegalMoves();
 		this.moveArray = new Move[numMoves];
@@ -244,10 +245,15 @@ public class MoveSelector {
 	 */
 	public Move selectMove() {
 		// set up odds array to current odds values
+		System.out.println("\n");
 		for (int i = 0; i < this.numMoves; i++) {
 			Move move = this.moveArray[i];
 			int odds = this.moveOdds.get(move);
 			this.oddsArray[i] = odds;
+			System.out.print(move.row);
+			System.out.print(move.col);
+			System.out.print(" ");
+			System.out.println(odds);
 		}
 		int[] cumulativeOdds;
 		try {
@@ -258,6 +264,9 @@ public class MoveSelector {
 		}
 		
 		int chosenIndex = this.chooseRandomIndex(cumulativeOdds);
-		return this.moveArray[chosenIndex];
+		Move chosenMove = this.moveArray[chosenIndex];
+		System.out.println(chosenMove.row);
+		System.out.println(chosenMove.col);
+		return chosenMove;
 	}
 }

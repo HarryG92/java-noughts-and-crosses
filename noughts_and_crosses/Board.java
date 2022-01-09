@@ -16,23 +16,25 @@ package noughts_and_crosses;
  */
 public class Board {
 	public final int BOARD_SIZE = 3, NUMBER_PLAYERS = 2;
-	char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
+	GameState board;
+	//char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
 	final char NOUGHTS = 'O', CROSSES = 'X';
 	public final char[] PLAYERS = {NOUGHTS, CROSSES};
 	int turn = 0;
 	char nextSymbol;
 	
 	public Board() {
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				this.board[row][col] = ' ';
-			}
-		}
+		this.board = new GameState();
+//		for (int row = 0; row < BOARD_SIZE; row++) {
+//			for (int col = 0; col < BOARD_SIZE; col++) {
+//				this.board[row][col] = ' ';
+//			}
+//		}
 		this.updateSymbol();
 	}
 	
 	// constructor allowing fields to be set instead of made from scratch
-	public Board(char[][] board, int turn) {
+	public Board(GameState board, int turn) {
 		this.board = board;
 		this.turn = turn;
 		this.updateSymbol();
@@ -43,26 +45,26 @@ public class Board {
 		this(that.board, that.turn);
 	}
 	
-	/**
-	 * checks if another Board object represents the same game state 
-	 * @param that the other Board object to be compared to this
-	 * @return true if that Board is the same as this
-	 */
-	public boolean isEqual(Board that) {
-		if (this.BOARD_SIZE != that.BOARD_SIZE) {
-			return false;
-		}
-		
-		for (int row = 0; row < this.BOARD_SIZE; row++) {
-			for (int col = 0; col < this.BOARD_SIZE; col++) {
-				if (this.board[row][col] != that.board[row][col]) {
-					return false;
-				}
-			}
-		}
-		
-		return true;
-	}
+//	/**
+//	 * checks if another Board object represents the same game state 
+//	 * @param that the other Board object to be compared to this
+//	 * @return true if that Board is the same as this
+//	 */
+//	public boolean isEqual(Board that) {
+//		if (this.BOARD_SIZE != that.BOARD_SIZE) {
+//			return false;
+//		}
+//		
+//		for (int row = 0; row < this.BOARD_SIZE; row++) {
+//			for (int col = 0; col < this.BOARD_SIZE; col++) {
+//				if (this.board[row][col] != that.board[row][col]) {
+//					return false;
+//				}
+//			}
+//		}
+//		
+//		return true;
+//	}
 	
 	/**
 	 * checks who the next player will be from turn number
@@ -79,33 +81,12 @@ public class Board {
 	 * @return true if move successful
 	 */
 	public boolean makeMove(Move move) {
-		if (this.isMoveLegal(move)) {
-			int row = move.row;
-			int col = move.col;
-			this.board[row][col] = this.nextSymbol;
+		try {
+			this.board.makeMove(move, this.nextSymbol);
 			this.turn += 1;
 			this.updateSymbol();
-			this.displayBoard(); // for debugging only
+			this.displayBoard(); //for debugging only
 			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	/** 
-	 * checks if a given move is legal 
-	 * @param move   the Move to be tested
-	 * @return boolean  true if Move is legal in current game state      
-	 */
-	public boolean isMoveLegal(Move move) {
-		int row = move.row;
-		int col = move.col;
-		try {
-			if (this.board[row][col] == ' ') {
-				return true;
-			} else {
-				return false;
-			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return false;
 		}
@@ -116,10 +97,10 @@ public class Board {
 	 */
 	public void displayBoard() {
 		String printableBoard = "-------\n";
-		for (int row = 0; row < BOARD_SIZE; row++) {
+		for (int row = 0; row < this.board.BOARD_SIZE; row++) {
 			printableBoard += "|";
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				printableBoard += this.board[row][col] + "|";
+			for (int col = 0; col < this.board.BOARD_SIZE; col++) {
+				printableBoard += this.board.state[row][col] + "|";
 			}
 			printableBoard += "\n-------\n";
 		}
@@ -136,130 +117,15 @@ public class Board {
 	 */
 	public char getResult() {
 		for (char player : PLAYERS) {
-			if (this.hasWon(player)) {
+			if (this.board.hasWon(player)) {
 				return player;
 			}
 		}
-		if (this.isBoardFull()) {
+		if (this.board.isBoardFull()) {
 			return 'D';
 		}
 		return ' ';
 	}
-	
-	/**
-	 * checks if every cell on the board is full
-	 * when this happens, the game is over (if no
-	 * player has won, it's a draw)
-	 * @return true if every cell is full
-	 */
-	private boolean isBoardFull() {
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				if (this.board[row][col] == ' ') {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * checks if a particular player has won
-	 * @param playerSymbol  a char, either 'O' or 'X'
-	 * @return true if that player has won (by
-	 *         having a row, column, or main diagonal
-	 *         full with their symbol)
-	 */
-	private boolean hasWon(char playerSymbol) {
-		boolean rowWin, colWin, diagWin;
-		rowWin = this.checkRowWin(playerSymbol);
-		colWin = this.checkColWin(playerSymbol);
-		diagWin = this.checkDiagWin(playerSymbol);
-		
-		return (rowWin | colWin | diagWin);
-	}
-	
-	/**
-	 * transposes the board - so rows and columns
-	 * are swapped. This is a convenience method
-	 * for checking victory conditions
-	 * @return a char[][] array representing the
-	 *         transposed state of the board 
-	 */
-	private char[][] transpose() {
-		char [][] transposedBoard = new char[BOARD_SIZE][BOARD_SIZE];
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				transposedBoard[col][row] = this.board[row][col];
-			}
-		}
-		return transposedBoard;
-	}
-	
-	/**
-	 * checks if a particular player has filled
-	 * a row with their symbol (and hence won)
-	 * @param boardState   a char[][] array representing the
-	 *                     current state of the board 
-	 * @param playerSymbol a char ('O' or 'X') representing
-	 *                     the current player
-	 * @return true if playerSymbol has filled any row
-	 */
-	private boolean checkRowWin(char[][] boardState, char playerSymbol) {
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			boolean rowWin = true;
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				rowWin &= (boardState[row][col] == playerSymbol);				
-			}
-			if (rowWin) {
-				return true;
-			}
-		}
-		return false;
-		
-	}
-	
-	/**
-	 * checks if a particular player has filled
-	 * a row with their symbol (and hence won)
-	 * @param playerSymbol a char ('O' or 'X') representing
-	 *                     the current player
-	 * @return true if playerSymbol has filled any row
-	 */
-	private boolean checkRowWin(char playerSymbol) {
-		return this.checkRowWin(this.board, playerSymbol);
-	}
-	
-	/**
-	 * checks if a particular player has filled
-	 * a column with their symbol (and hence won)
-	 * @param playerSymbol a char ('O' or 'X') representing
-	 *                     the current player
-	 * @return true if playerSymbol has filled any column
-	 */
-	private boolean checkColWin(char playerSymbol) {
-		// prioritised ease-of-writing over efficiency
-		// might rewrite this to copy checkRowWin for performance improvement
-		char[][] transposedBoard = this.transpose();
-		return this.checkRowWin(transposedBoard, playerSymbol);
-	}
-	
-	/**
-	 * checks if a particular player has filled
-	 * a diagonal with their symbol (and hence won)
-	 * @param playerSymbol a char ('O' or 'X') representing
-	 *                     the current player
-	 * @return true if playerSymbol has filled any diagonal
-	 */
-	private boolean checkDiagWin(char playerSymbol) {
-		boolean leadingDiag = true, trailingDiag = true;
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			leadingDiag &= (this.board[row][row] == playerSymbol);
-			int trailingCol = BOARD_SIZE - row - 1;
-			trailingDiag &= (this.board[row][trailingCol] == playerSymbol);
-		}
-		
-		return (leadingDiag | trailingDiag);
-	}
+
 
 }
