@@ -73,7 +73,6 @@ public class Game {
 	private void reportResult(char result) {
 		PlayerInterface noughtsPlayer = this.players[0];
 		PlayerInterface crossesPlayer = this.players[1];
-		System.out.println(result);
 		if (result == 'O') {
 			noughtsPlayer.win();
 			crossesPlayer.lose();

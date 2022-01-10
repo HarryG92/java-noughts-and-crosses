@@ -17,7 +17,6 @@ package noughts_and_crosses;
 public class Board {
 	public final int BOARD_SIZE = 3, NUMBER_PLAYERS = 2;
 	GameState board;
-	//char[][] board = new char[BOARD_SIZE][BOARD_SIZE];
 	final char NOUGHTS = 'O', CROSSES = 'X';
 	public final char[] PLAYERS = {NOUGHTS, CROSSES};
 	int turn = 0;
@@ -25,11 +24,6 @@ public class Board {
 	
 	public Board() {
 		this.board = new GameState();
-//		for (int row = 0; row < BOARD_SIZE; row++) {
-//			for (int col = 0; col < BOARD_SIZE; col++) {
-//				this.board[row][col] = ' ';
-//			}
-//		}
 		this.updateSymbol();
 	}
 	
@@ -44,27 +38,6 @@ public class Board {
 	public Board(Board that) {
 		this(that.board, that.turn);
 	}
-	
-//	/**
-//	 * checks if another Board object represents the same game state 
-//	 * @param that the other Board object to be compared to this
-//	 * @return true if that Board is the same as this
-//	 */
-//	public boolean isEqual(Board that) {
-//		if (this.BOARD_SIZE != that.BOARD_SIZE) {
-//			return false;
-//		}
-//		
-//		for (int row = 0; row < this.BOARD_SIZE; row++) {
-//			for (int col = 0; col < this.BOARD_SIZE; col++) {
-//				if (this.board[row][col] != that.board[row][col]) {
-//					return false;
-//				}
-//			}
-//		}
-//		
-//		return true;
-//	}
 	
 	/**
 	 * checks who the next player will be from turn number
@@ -85,7 +58,7 @@ public class Board {
 			this.board.makeMove(move, this.nextSymbol);
 			this.turn += 1;
 			this.updateSymbol();
-			this.displayBoard(); //for debugging only
+			//this.displayBoard(); //for debugging only
 			return true;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return false;

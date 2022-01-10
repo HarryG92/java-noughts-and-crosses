@@ -12,15 +12,36 @@ public class Main {
 		crosses = new ReinforcementPlayer();
 		PlayerInterface[] players = {noughts, crosses};
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 20000; i++) {
 			try {
 				Game game = new Game(players);
 				game.runGame();
-				System.out.println("\n\n\n");
 			} catch (PlayerNumberException e) {
 				System.out.println("wtf? that's not meant to happen!");
 			}
 			
+		}
+		
+		HumanPlayer me = new HumanPlayer("H");
+		players[1] = me;
+		try {
+			Game game = new Game(players);
+			game.runGame();
+		} catch (PlayerNumberException e) {
+			System.out.println("wtf? that's not meant to happen!");
+		}
+		
+		
+		
+		System.out.println("Change roles");
+		
+		players[1] = crosses;
+		players[0] = me;
+		try {
+			Game game = new Game(players);
+			game.runGame();
+		} catch (PlayerNumberException e) {
+			System.out.println("wtf? that's not meant to happen!");
 		}
 		
 		
