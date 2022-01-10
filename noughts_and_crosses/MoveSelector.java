@@ -105,8 +105,6 @@ public class MoveSelector {
 				lowestOdds = Math.min(lowestOdds, odds);
 			}
 		}
-		System.out.print("Dividing through by ");
-		System.out.println(lowestOdds);
 		this.simplifyOdds(lowestOdds);
 	}
 	
@@ -245,17 +243,11 @@ public class MoveSelector {
 	 * @return a Move object representing the chosen move
 	 */
 	public Move selectMove() {
-		this.printOdds();
 		// set up odds array to current odds values
-//		System.out.println("\n");
 		for (int i = 0; i < this.numMoves; i++) {
 			Move move = this.moveArray[i];
 			int odds = this.moveOdds.get(move);
 			this.oddsArray[i] = odds;
-//			System.out.print(move.row);
-//			System.out.print(move.col);
-//			System.out.print(" ");
-//			System.out.println(odds);
 		}
 		int[] cumulativeOdds;
 		try {
@@ -267,8 +259,6 @@ public class MoveSelector {
 		
 		int chosenIndex = this.chooseRandomIndex(cumulativeOdds);
 		Move chosenMove = this.moveArray[chosenIndex];
-//		System.out.println(chosenMove.row);
-//		System.out.println(chosenMove.col);
 		return chosenMove;
 	}
 }
