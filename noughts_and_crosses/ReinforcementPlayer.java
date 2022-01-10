@@ -4,39 +4,48 @@ import java.util.ArrayList;
 
 public class ReinforcementPlayer extends Player {
 	private HashMap<GameState, MoveSelector> moveSelectors = new HashMap<GameState, MoveSelector>();
+	
+	// for tracking current game, for learning at the end
 	private ArrayList<GameState> seenStates;
 	private ArrayList<Move> movesPlayed;
-	private int numMoves = 0;
+	private HashMap<GameState, Move> movesPlayed2;
+	private GameState lastState;
+	private Move lastMove;
+	private int numMoves;
 	
 	@Override public void startGame() {
 		this.movesPlayed = new ArrayList<Move>();
 		this.seenStates = new ArrayList<GameState>();
+		this.numMoves = 0;
+		this.movesPlayed2 = new HashMap<GameState, Move>();
 	}
 	
 	@Override
 	public Move getMove(Board board) {
 		boolean hasSeenBefore = false;
-		GameState keyState = board.board;
+		// need to take a copy of the game state to avoid passing by reference
+		GameState keyState = new GameState(board.board);
 		for (GameState seenState : moveSelectors.keySet()) {
 			if (seenState.isEqual(board.board)) {
 				keyState = seenState;
 				hasSeenBefore = true;
-				System.out.println("old");
 				break;
 			}
 		}
 		
 		if (!hasSeenBefore) {
 			MoveSelector selector = new MoveSelector(board);
-			System.out.println("new");
-			this.moveSelectors.put(board.board, selector);
+			this.moveSelectors.put(keyState, selector);
 		}
 		
 		this.seenStates.add(keyState);
 		MoveSelector selector = this.moveSelectors.get(keyState);
 		Move chosenMove = selector.selectMove();
 		this.movesPlayed.add(chosenMove);
+		this.movesPlayed2.put(keyState, chosenMove);
 		this.numMoves += 1;
+		this.lastMove = chosenMove;
+		this.lastState = keyState;
 		return chosenMove;
 	}
 
@@ -60,10 +69,12 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int forfeit() {
 		this.numForfeits += 1;
-		GameState finalState = this.getFinalState();
-		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalState);
-		selector.zeroOdds(finalMove);
+		//GameState finalState = this.getFinalState();
+		//Move finalMove = this.getFinalMove();
+		MoveSelector selector = this.moveSelectors.get(this.lastState);
+		//MoveSelector selector = this.moveSelectors.get(finalState);
+		selector.zeroOdds(this.lastMove);
+		//selector.zeroOdds(finalMove);
 		return numForfeits;
 	}
 
@@ -77,21 +88,32 @@ public class ReinforcementPlayer extends Player {
 
 	@Override
 	public int win() {
+		System.out.println("win");
 		this.numWins += 1;
-		GameState finalState = this.getFinalState();
-		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalState);
-		selector.increaseOdds(finalMove, 2);
+		for (GameState state : this.movesPlayed2.keySet()) {
+			MoveSelector selector = this.moveSelectors.get(state);
+			Move move = this.movesPlayed2.get(state);
+			selector.increaseOdds(move, 2);
+		}
+//		GameState finalState = this.getFinalState();
+//		Move finalMove = this.getFinalMove();
+//		MoveSelector selector = this.moveSelectors.get(finalState);
+//		selector.increaseOdds(finalMove, 2);
 		return numWins;
 	}
 
 	@Override
 	public int lose() {
 		this.numLosses += 1;
-		GameState finalState = this.getFinalState();
-		Move finalMove = this.getFinalMove();
-		MoveSelector selector = this.moveSelectors.get(finalState);
-		selector.decreaseOdds(finalMove, 2);
+		for (GameState state : this.movesPlayed2.keySet()) {
+			MoveSelector selector = this.moveSelectors.get(state);
+			Move move = this.movesPlayed2.get(state);
+			selector.decreaseOdds(move, 2);
+		}
+//		GameState finalState = this.getFinalState();
+//		Move finalMove = this.getFinalMove();
+//		MoveSelector selector = this.moveSelectors.get(finalState);
+//		selector.decreaseOdds(finalMove, 2);
 		return numLosses;
 	}
 
