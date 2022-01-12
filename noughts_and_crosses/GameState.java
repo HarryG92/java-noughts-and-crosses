@@ -3,6 +3,7 @@ package noughts_and_crosses;
 public class GameState {
 	public final int BOARD_SIZE = 3;
 	char[][] state;
+	public int turn;
 	
 	public GameState() {
 		this.state = new char[BOARD_SIZE][BOARD_SIZE];
@@ -11,10 +12,12 @@ public class GameState {
 				this.state[row][col] = ' ';
 			}
 		}
+		this.turn = 0;
 	}
 	
 	public GameState(GameState that) {
 		this.state = new char[BOARD_SIZE][BOARD_SIZE];
+		this.turn = that.turn;
 		for (int row = 0; row < this.BOARD_SIZE; row++) {
 			for (int col = 0; col < this.BOARD_SIZE; col++) {
 				this.state[row][col] = that.state[row][col];
@@ -53,6 +56,7 @@ public class GameState {
 			int row = move.row;
 			int col = move.col;
 			this.state[row][col] = symbol;
+			this.turn += 1;
 		} else {
 			throw new ArrayIndexOutOfBoundsException();
 		}

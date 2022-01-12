@@ -58,10 +58,19 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int win() {
 		this.numWins += 1;
+		int lastTurnNumber = this.lastState.turn;
 		for (GameState state : this.movesPlayed.keySet()) {
 			MoveSelector selector = this.moveSelectors.get(state);
 			Move move = this.movesPlayed.get(state);
-			selector.increaseOdds(move, 2);
+			if (state == this.lastState) {
+				selector.makeCertain(move);
+			} else {
+				int turnsToEnd = Math.max(lastTurnNumber - state.turn, 0); //shouldn't ever be negative, but best to be sure
+				//earlier moves should be rewarded by less
+				int adjustmentNumerator = Math.max(20 - turnsToEnd, 11); //max 9 turns, so again the max shouldn't be needed
+				int adjustmentDenominator = 10;
+				selector.adjustOdds(move, adjustmentNumerator, adjustmentDenominator);
+			}
 		}
 		return numWins;
 	}
@@ -69,10 +78,15 @@ public class ReinforcementPlayer extends Player {
 	@Override
 	public int lose() {
 		this.numLosses += 1;
+		int lastTurnNumber = this.lastState.turn;
 		for (GameState state : this.movesPlayed.keySet()) {
 			MoveSelector selector = this.moveSelectors.get(state);
 			Move move = this.movesPlayed.get(state);
-			selector.decreaseOdds(move, 2);
+			int turnsToEnd = Math.max(lastTurnNumber - state.turn, 1); //needs to be positive to avoid zeroing odss completely
+			//earlier moves should be penalised by less
+			int adjustmentNumerator = turnsToEnd;
+			int adjustmentDenominator = 10;
+			selector.adjustOdds(move, adjustmentNumerator, adjustmentDenominator);			
 		}
 		return numLosses;
 	}

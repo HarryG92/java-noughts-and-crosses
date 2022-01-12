@@ -42,7 +42,7 @@ public class Game {
 			player.startGame();
 		}
 		while (result == ' ') {
-			int turn = this.board.turn;
+			int turn = this.board.board.turn;
 			int playerNumber = turn % NUMBER_PLAYERS;
 			int otherPlayerNumber = (turn + 1) % NUMBER_PLAYERS;
 			PlayerInterface player = this.players[playerNumber];

@@ -16,10 +16,9 @@ package noughts_and_crosses;
  */
 public class Board {
 	public final int BOARD_SIZE = 3, NUMBER_PLAYERS = 2;
-	GameState board;
+	public GameState board;
 	final char NOUGHTS = 'O', CROSSES = 'X';
 	public final char[] PLAYERS = {NOUGHTS, CROSSES};
-	int turn = 0;
 	char nextSymbol;
 	
 	public Board() {
@@ -28,15 +27,14 @@ public class Board {
 	}
 	
 	// constructor allowing fields to be set instead of made from scratch
-	public Board(GameState board, int turn) {
+	public Board(GameState board) {
 		this.board = board;
-		this.turn = turn;
 		this.updateSymbol();
 	}
 	
 	// copy constructor
 	public Board(Board that) {
-		this(that.board, that.turn);
+		this(that.board);
 	}
 	
 	/**
@@ -44,7 +42,7 @@ public class Board {
 	 * and updates the nextSymbol accordingly
 	 */
 	private void updateSymbol() {
-		int nextPlayerNumber = this.turn % 2;
+		int nextPlayerNumber = this.board.turn % 2;
 		this.nextSymbol = PLAYERS[nextPlayerNumber];
 	}
 	
@@ -56,7 +54,6 @@ public class Board {
 	public boolean makeMove(Move move) {
 		try {
 			this.board.makeMove(move, this.nextSymbol);
-			this.turn += 1;
 			this.updateSymbol();
 			//this.displayBoard(); //for debugging only
 			return true;

@@ -5,14 +5,19 @@ public class Main {
 	public static void main(String[] args) {
 		
 		
-		
+//		Board board = new Board();
+//		MoveSelector selector = new MoveSelector(board);
+//		selector.printOdds();
+//		Move move = selector.selectMove();
+//		selector.adjustOdds(move, 3, 2);
+//		selector.printOdds();
 		
 		ReinforcementPlayer noughts, crosses;
 		noughts = new ReinforcementPlayer();
 		crosses = new ReinforcementPlayer();
 		PlayerInterface[] players = {noughts, crosses};
 		
-		for (int i = 0; i < 20000; i++) {
+		for (int i = 0; i < 100000; i++) {
 			try {
 				Game game = new Game(players);
 				game.runGame();

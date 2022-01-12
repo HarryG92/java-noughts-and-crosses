@@ -53,6 +53,7 @@ public class MoveSelector {
 			System.out.print(" ");
 			System.out.println(this.moveOdds.get(move));
 		}
+		System.out.print("\n");
 	}
 	
 	/**
@@ -77,6 +78,36 @@ public class MoveSelector {
 	}
 
 	/**
+	 * finds the largest value occurring as an odds component
+	 * convenience method
+	 * @return the highest odds component
+	 */
+	private int findMaxOdds() {
+		int maxOdds = 0;
+		for (int odds : this.moveOdds.values()) {
+			maxOdds = Math.min(odds, maxOdds);
+		}
+		return maxOdds;
+	}
+	
+	/**
+	 * finds the smallest value occurring as an odds component
+	 * convenience method
+	 * @return the lowest odds component
+	 */
+	private int findMinOdds() {
+		int minOdds = (int)Math.pow(2, 30); // almost the biggest int possible
+		// need lowestOdds to start high, so minimum-ing it with numbers
+		// makes it lower
+		for (int odds : this.moveOdds.values()) {
+			if (odds != 0) {
+				minOdds = Math.min(minOdds, odds);
+			}
+		}
+		return minOdds;
+	}
+	
+	/**
 	 * simplifies the odds ratio by dividing through by a
 	 * constant (with integral division - i.e., quotient)
 	 * @param factor the integer to divide through the odds
@@ -97,14 +128,7 @@ public class MoveSelector {
 	 * odds component, so as to make the lowest component 1
 	 */
 	private void simplifyOddsByMinimum() {
-		int lowestOdds = (int)Math.pow(2, 30); // almost the biggest int possible
-		// need lowestOdds to start high, so minimum-ing it with numbers
-		// makes it lower
-		for (int odds : this.moveOdds.values()) {
-			if (odds != 0) {
-				lowestOdds = Math.min(lowestOdds, odds);
-			}
-		}
+		int lowestOdds = this.findMinOdds();
 		this.simplifyOdds(lowestOdds);
 	}
 	
@@ -129,6 +153,20 @@ public class MoveSelector {
 		int currentValue = this.moveOdds.get(move);
 		int newValue = currentValue / factor;
 		this.moveOdds.put(move, newValue);
+	}
+	
+	/**
+	 * multiplies odds of a given move by a rational number
+	 * does this by multiplying the odds component of that
+	 * move by a numerator, and of all other moves by a denominator
+	 * @param move         the move whose odds are to be adjusted
+	 * @param numerator    the factor to increase the odds of that move by
+	 * @param denominator  the factor to decrease the odds by
+	 */
+	public void adjustOdds(Move move, int numerator, int denominator) {
+		this.increaseOdds(move, numerator);
+		this.printOdds();
+		this.decreaseOdds(move, denominator);
 	}
 	
 	/**
@@ -163,8 +201,14 @@ public class MoveSelector {
 			}
 		}
 		
-		// divide through to simplify the odds if possible
-		this.simplifyOddsByMinimum();
+		// divide through to simplify the odds if some are getting large
+		int maxOdds = this.findMaxOdds();
+		if (maxOdds > Math.pow(2, 20)) { // entirely arbitrary point at which to simplify
+			// orginally just always simplified, but because of integer division that
+			// ended up setting things to 1 that needed to be higher.
+			this.simplifyOddsByMinimum();
+		}
+		
 	}
 
 	/**
@@ -236,6 +280,19 @@ public class MoveSelector {
 	}
 	
 	/**
+	 * makes a particular move certain, so it will always
+	 * be played
+	 * @param move the Move object to be made certain
+	 */
+	public void makeCertain(Move move) {
+		for (Move otherMove : this.moveOdds.keySet()) {
+			if (move != otherMove) {
+				this.zeroOdds(otherMove);
+			}
+		}
+	}
+	
+	/**
 	 * chooses a move to play. Does this by putting the
 	 * current odds in an array, choosing a random int between 0 and
 	 * the sum of that array, and choosing the index where the cumulative
@@ -243,6 +300,7 @@ public class MoveSelector {
 	 * @return a Move object representing the chosen move
 	 */
 	public Move selectMove() {
+		this.printOdds();
 		// set up odds array to current odds values
 		for (int i = 0; i < this.numMoves; i++) {
 			Move move = this.moveArray[i];

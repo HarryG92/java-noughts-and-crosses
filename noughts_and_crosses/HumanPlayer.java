@@ -29,7 +29,7 @@ public class HumanPlayer extends Player {
 		int row = -1, col = -1;
 		
 		while (!is_move_confirmed) {
-			String msg = String.format("Turn %d. Player %s to play:", board.turn, this.playerID);
+			String msg = String.format("Turn %d. Player %s to play:", board.board.turn, this.playerID);
 			System.out.println(msg);
 			System.out.println("Enter the (0-indexed) row you wish to play in: ");
 			row = this.scanner.nextInt();
