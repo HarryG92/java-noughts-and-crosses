@@ -16,7 +16,7 @@ public interface PlayerInterface {
 	 * @return a Move object representing the chosen
 	 *         move
 	 */
-	public Move getMove(Board board);
+	public Move getMove(Board board, boolean verbose);
 	
 	/**
 	 * alerts the PlayerInterface that the game is starting;

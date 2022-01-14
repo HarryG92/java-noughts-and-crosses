@@ -23,7 +23,7 @@ public class HumanPlayer extends Player {
 	Scanner scanner = new Scanner(System.in);
 	
 	@Override
-	public Move getMove(Board board) {
+	public Move getMove(Board board, boolean verbose) {
 		board.displayBoard();
 		boolean is_move_confirmed = false;
 		int row = -1, col = -1;

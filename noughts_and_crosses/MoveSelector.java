@@ -24,18 +24,17 @@ import java.util.Random;
 public class MoveSelector {
 	final int BOARD_SIZE;
 	final GameState gameState;
-	final HashMap<Move, Integer> moveOdds;
+	final HashMap<Move, Double> moveOdds;
 	private int numMoves = 0;
 	private Move[] moveArray;
-	private int[] oddsArray;
+	private double[] oddsArray;
 	
-	// TODO: needs to be based off game state, not Board! otherwise it doesn't notice the changing state on the board as moves are played!
 	public MoveSelector(Board board) {
 		this.gameState = new GameState(board.board);
 		this.BOARD_SIZE = this.gameState.BOARD_SIZE;
 		this.moveOdds = this.listLegalMoves();
 		this.moveArray = new Move[numMoves];
-		this.oddsArray = new int[numMoves];
+		this.oddsArray = new double[numMoves];
 		int i = 0;
 		for (Move move : this.moveOdds.keySet()) {
 			this.moveArray[i++] = move;
@@ -51,7 +50,9 @@ public class MoveSelector {
 			System.out.print(move.row);
 			System.out.print(move.col);
 			System.out.print(" ");
-			System.out.println(this.moveOdds.get(move));
+			double odds = this.moveOdds.get(move);
+			odds = Math.round(odds * 100.0) / 100.0;
+			System.out.println(odds);
 		}
 		System.out.print("\n");
 	}
@@ -63,13 +64,13 @@ public class MoveSelector {
 	 *         legal move in the game, and 1 as all values,
 	 *         representing equal odds of all moves
 	 */
-	private HashMap<Move, Integer> listLegalMoves() {
-		HashMap<Move, Integer> legalMoves = new HashMap<Move, Integer>();
+	private HashMap<Move, Double> listLegalMoves() {
+		HashMap<Move, Double> legalMoves = new HashMap<Move, Double>();
 		for (int row = 0; row < this.BOARD_SIZE; row++) {
 			for (int col = 0; col < this.BOARD_SIZE; col++) {
 				Move move = new Move(row, col);
 				if (this.gameState.isMoveLegal(move)) {
-					legalMoves.put(move, 1);
+					legalMoves.put(move, 1.0);
 					this.numMoves += 1;
 				}
 			}
@@ -82,30 +83,14 @@ public class MoveSelector {
 	 * convenience method
 	 * @return the highest odds component
 	 */
-	private int findMaxOdds() {
-		int maxOdds = 0;
-		for (int odds : this.moveOdds.values()) {
+	private double findMaxOdds() {
+		double maxOdds = 0.0;
+		for (double odds : this.moveOdds.values()) {
 			maxOdds = Math.min(odds, maxOdds);
 		}
 		return maxOdds;
 	}
-	
-	/**
-	 * finds the smallest value occurring as an odds component
-	 * convenience method
-	 * @return the lowest odds component
-	 */
-	private int findMinOdds() {
-		int minOdds = (int)Math.pow(2, 30); // almost the biggest int possible
-		// need lowestOdds to start high, so minimum-ing it with numbers
-		// makes it lower
-		for (int odds : this.moveOdds.values()) {
-			if (odds != 0) {
-				minOdds = Math.min(minOdds, odds);
-			}
-		}
-		return minOdds;
-	}
+
 	
 	/**
 	 * simplifies the odds ratio by dividing through by a
@@ -115,72 +100,21 @@ public class MoveSelector {
 	 *               3:5:10 and the factor is 3, the new
 	 *               odds ratio will be 1:1:3
 	 */
-	private void simplifyOdds(int factor) {
+	private void simplifyOdds(double factor) {
 		for (Move move : this.moveOdds.keySet()) {
-			int oldOdds = this.moveOdds.get(move);
-			int newOdds = oldOdds / factor;
+			double oldOdds = this.moveOdds.get(move);
+			double newOdds = oldOdds / factor;
 			this.moveOdds.put(move, newOdds);
 		}
 	}
 
 	/**
-	 * simplifies the odds by dividing through by the lowest
-	 * odds component, so as to make the lowest component 1
-	 */
-	private void simplifyOddsByMinimum() {
-		int lowestOdds = this.findMinOdds();
-		this.simplifyOdds(lowestOdds);
-	}
-	
-	/**
-	 * divides the odds of the given move by the given factor.
-	 * This is integral division (quotient), so may introduce
-	 * rounding errors, and may set the odds of the move to 0,
-	 * if factor is bigger than the previous odds component
-	 * @param move    the Move object whose odds are to be reduced
-	 * @param factor  the factor by which to reduce the odds of the
-	 *                move
-	 */
-	private void divideOdds(Move move, int factor) {
-		if (factor <= 1) {
-			throw new IllegalArgumentException("The factor must be positive");
-		}
-		
-		if (!this.gameState.isMoveLegal(move)) {
-			throw new IllegalArgumentException("The move is not legal in this game state");
-		}
-		
-		int currentValue = this.moveOdds.get(move);
-		int newValue = currentValue / factor;
-		this.moveOdds.put(move, newValue);
-	}
-	
-	/**
-	 * multiplies odds of a given move by a rational number
-	 * does this by multiplying the odds component of that
-	 * move by a numerator, and of all other moves by a denominator
-	 * @param move         the move whose odds are to be adjusted
-	 * @param numerator    the factor to increase the odds of that move by
-	 * @param denominator  the factor to decrease the odds by
-	 */
-	public void adjustOdds(Move move, int numerator, int denominator) {
-		this.increaseOdds(move, numerator);
-		this.printOdds();
-		this.decreaseOdds(move, denominator);
-	}
-	
-	/**
-	 * multiplies the odds of a particular move by a given int,
-	 * unless doing so would cause an integer overflow. In this
-	 * case, the odds factor of every other move is divided by the
-	 * multiplier, which should have the same effect, except that
-	 * it's integral division (quotient), so will round, and could
-	 * set small odds to 0. 
-	 * @param move        the move whose odds are to be increased
-	 * @param multiplier  an int; the odds of playing the given move
+	 * multiplies the odds of a particular move by a given double
+	 * @param move        the move whose odds are to be changed
+	 * @param multiplier  a double; the odds of playing the given move
 	 *                    are multiplied by this
 	 */
-	public void increaseOdds(Move move, int multiplier) {
+	public void multiplyOdds(Move move, double multiplier) {
 		if (multiplier <= 0) {
 			throw new IllegalArgumentException("The multiplier must be positive");
 		}
@@ -188,43 +122,20 @@ public class MoveSelector {
 		if (!this.gameState.isMoveLegal(move)) {
 			throw new IllegalArgumentException("The move is not legal in this game state");
 		}
-		int currentValue = this.moveOdds.get(move);
-		try {
-			// need to guard against integer overflow
-			int newValue = Math.multiplyExact(currentValue, multiplier);
-			this.moveOdds.put(move, newValue);
-		} catch (ArithmeticException e) {
-			for (Move otherMove : this.moveOdds.keySet()) {
-				if (!otherMove.isEqual(move)) {
-					this.divideOdds(otherMove, multiplier);
-				}
-			}
-		}
+		double currentValue = this.moveOdds.get(move);
+		double newValue = currentValue * multiplier;
+		this.moveOdds.put(move, newValue);
 		
 		// divide through to simplify the odds if some are getting large
-		int maxOdds = this.findMaxOdds();
+		double maxOdds = this.findMaxOdds();
 		if (maxOdds > Math.pow(2, 20)) { // entirely arbitrary point at which to simplify
 			// orginally just always simplified, but because of integer division that
 			// ended up setting things to 1 that needed to be higher.
-			this.simplifyOddsByMinimum();
+			this.simplifyOdds(2.0);
 		}
 		
 	}
 
-	/**
-	 * multiplies the odds components of each other move by a given
-	 * int, thereby reducing the odds of the specified move by that int
-	 * @param move   the Move object whose odds are to be decreased
-	 * @param factor the int factor by which to decrease the odds of move
-	 */
-	public void decreaseOdds(Move move, int factor) {
-		for (Move otherMove : this.moveOdds.keySet()) {
-			if (move != otherMove) {
-				this.increaseOdds(otherMove, factor);
-			}
-		}
-	}
-	
 	/**
 	 * sets the odds of the given move to 0, so the move cannot be played
 	 * @param move the Move object whose odds are to be set to 0
@@ -233,7 +144,7 @@ public class MoveSelector {
 		if (!this.gameState.isMoveLegal(move)) {
 			throw new IllegalArgumentException("The move is not legal in this game state");
 		}
-		this.moveOdds.put(move, 0);
+		this.moveOdds.put(move, 0.0);
 	}
 	
 	/**
@@ -244,11 +155,11 @@ public class MoveSelector {
 	 * @return an Array of ints whose ith entry is the
 	 *         sum of the first i entries of in
 	 */
-	private int[] cumulativeSum(int[] in) {
-		int[] out = new int[in.length];
-		int total = 0;
+	private double[] cumulativeSum(double[] in) {
+		double[] out = new double[in.length];
+		double total = 0;
 		for (int i = 0; i < in.length; i++) {
-			total = Math.addExact(total, in[i]);
+			total += in[i];
 			out[i] = total;
 		}
 		return out;
@@ -264,10 +175,11 @@ public class MoveSelector {
 	 *                    this.cumulativeSum will return such an array
 	 * @return an int corresponding to an index of the input array
 	 */
-	private int chooseRandomIndex(int[] accumulated) {
+	private int chooseRandomIndex(double[] accumulated) {
 		Random random = new Random();
-		int max = accumulated[accumulated.length - 1];
-		int choice = random.nextInt(max);
+		double max = accumulated[accumulated.length - 1];
+		int maxInt = (int)Math.ceil(max);
+		int choice = random.nextInt(maxInt);
 		for (int i = 0; i < accumulated.length; i++) {
 			if (accumulated[i] > choice) {
 				return i;
@@ -288,6 +200,8 @@ public class MoveSelector {
 		for (Move otherMove : this.moveOdds.keySet()) {
 			if (move != otherMove) {
 				this.zeroOdds(otherMove);
+			} else {
+				this.moveOdds.put(otherMove, 1.0);
 			}
 		}
 	}
@@ -300,14 +214,13 @@ public class MoveSelector {
 	 * @return a Move object representing the chosen move
 	 */
 	public Move selectMove() {
-		this.printOdds();
 		// set up odds array to current odds values
 		for (int i = 0; i < this.numMoves; i++) {
 			Move move = this.moveArray[i];
-			int odds = this.moveOdds.get(move);
+			double odds = this.moveOdds.get(move);
 			this.oddsArray[i] = odds;
 		}
-		int[] cumulativeOdds;
+		double[] cumulativeOdds;
 		try {
 			cumulativeOdds = this.cumulativeSum(this.oddsArray);
 		} catch (ArithmeticException e) { // if integer overflow
@@ -318,5 +231,21 @@ public class MoveSelector {
 		int chosenIndex = this.chooseRandomIndex(cumulativeOdds);
 		Move chosenMove = this.moveArray[chosenIndex];
 		return chosenMove;
+	}
+	
+	/**
+	 * chooses a move to play, with the option of displaying working.
+	 * Does this by putting the current odds in an array, choosing a random
+	 * int between 0 and the sum of that array, and choosing the index where
+	 * the cumulative sum first exceeds the random int; then returns the
+	 * corresponding Move
+	 * @param verbose a boolean; if true, prints odds of each move first
+	 * @return a Move object representing the chosen move
+	 */
+	public Move selectMove(boolean verbose) {
+		if (verbose) {
+			this.printOdds();
+		}
+		return this.selectMove();
 	}
 }

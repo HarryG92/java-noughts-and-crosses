@@ -28,15 +28,21 @@ public class Game {
 		this.players = players;
 	}
 
+	public char runGame() {
+		return this.runGame(false);
+	}
+	
 	/**
 	 * runs a complete game, from start to finish.
 	 * Asks each player in turn for their move,
 	 * and makes those moves on the board
+	 * @param verbose  a boolean; if true, displays
+	 *                 some internal working
 	 * @return a char representing the outcome
 	 *         of the game. 'X' or 'O' for the winner,
 	 *         or 'D' for a draw
 	 */
-	public char runGame() {
+	public char runGame(boolean verbose) {
 		char result = this.board.getResult();
 		for (PlayerInterface player : this.players) {
 			player.startGame();
@@ -47,7 +53,7 @@ public class Game {
 			int otherPlayerNumber = (turn + 1) % NUMBER_PLAYERS;
 			PlayerInterface player = this.players[playerNumber];
 			PlayerInterface otherPlayer = this.players[otherPlayerNumber];
-			Move attemptedMove = this.requestMove(player);
+			Move attemptedMove = this.requestMove(player, verbose);
 			boolean moveSuccess = this.board.makeMove(attemptedMove);
 			if (moveSuccess) {
 				result = this.board.getResult();
@@ -89,10 +95,12 @@ public class Game {
 	 * asks the player for their next move choice
 	 * @param player an object implementing the 
 	 *               PlayerInterface
+	 * @param verbose a boolean; if true, displays
+	 *                information about internal workings
 	 * @return a Move object representing the choice
 	 *         of move
 	 */
-	private Move requestMove(PlayerInterface player) {
-		return player.getMove(this.board);
+	private Move requestMove(PlayerInterface player, boolean verbose) {
+		return player.getMove(this.board, verbose);
 	}
 }

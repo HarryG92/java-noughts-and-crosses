@@ -16,7 +16,9 @@ public abstract class Player implements PlayerInterface {
 	public int numForfeits = 0; // all forfeits are losses, so numForfeits <= numLosses always
 	String playerID;
 	
-//	public abstract Move getMove(Board board);
+	public Move getMove(Board board) {
+		return this.getMove(board, false);
+	}
 //	
 //	public abstract int forfeit();
 //	
