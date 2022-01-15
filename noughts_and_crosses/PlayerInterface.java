@@ -45,27 +45,39 @@ public interface PlayerInterface {
 	/**
 	 * tells this player that they have won the
 	 * game
+	 * @param playerNum an int, 0 or 1, representing
+	 *        			the parity of this player;
+	 *        			0 means this player played first
+	 *        			in the game, 1 means second 
 	 * @return the integer count of number
 	 *         of wins that player has
 	 *         made so far 
 	 */
-	public int win();
+	public int win(int playerNum);
 	
 	/**
 	 * tells this player that they have lost the
 	 * game
+	 * @param playerNum an int, 0 or 1, representing
+	 *        			the parity of this player;
+	 *        			0 means this player played first
+	 *        			in the game, 1 means second 
 	 * @return the integer count of number
 	 *         of losses this player has
 	 *         made so far 
 	 */
-	public int lose();
+	public int lose(int playerNum);
 	
 	/**
 	 * tells this player that the game is a draw
+	 * @param playerNum an int, 0 or 1, representing
+	 *        			the parity of this player;
+	 *        			0 means this player played first
+	 *        			in the game, 1 means second 
 	 * @return the integer count of number
 	 *         of draws this player has
 	 *         made so far 
 	 */
-	public int draw();
+	public int draw(int playerNum);
 
 }

@@ -64,21 +64,21 @@ public class HumanPlayer extends Player {
 	}
 
 	@Override
-	public int win() {
+	public int win(int playerNum) {
 		this.numWins += 1;
 		System.out.println("You won! Congrats");
 		return this.numWins;
 	}
 
 	@Override
-	public int lose() {
+	public int lose(int playerNum) {
 		this.numLosses += 1;
 		System.out.println("You lost :( Better luck next time!");
 		return this.numLosses;
 	}
 
 	@Override
-	public int draw() {
+	public int draw(int playerNum) {
 		this.numDraws += 1;
 		System.out.println("It's a draw!");
 		return this.numDraws;

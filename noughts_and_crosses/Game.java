@@ -80,14 +80,14 @@ public class Game {
 		PlayerInterface noughtsPlayer = this.players[0];
 		PlayerInterface crossesPlayer = this.players[1];
 		if (result == 'O') {
-			noughtsPlayer.win();
-			crossesPlayer.lose();
+			noughtsPlayer.win(0);
+			crossesPlayer.lose(1);
 		} else if (result == 'X') {
-			noughtsPlayer.lose();
-			crossesPlayer.win();
+			noughtsPlayer.lose(0);
+			crossesPlayer.win(1);
 		} else if (result == 'D') {
-			noughtsPlayer.draw();
-			crossesPlayer.draw();
+			noughtsPlayer.draw(0);
+			crossesPlayer.draw(1);
 		}
 	}
 	

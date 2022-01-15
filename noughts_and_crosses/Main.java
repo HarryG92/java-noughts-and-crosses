@@ -6,93 +6,35 @@ public class Main {
 	public static void main(String[] args) {
 		
 		Scanner scanner = new Scanner(System.in);
-//		Board board = new Board();
-//		MoveSelector selector = new MoveSelector(board);
-//		selector.printOdds();
-//		Move move = selector.selectMove();
-//		selector.adjustOdds(move, 3, 2);
-//		selector.printOdds();
 		
-		int numPlayers = 10;
-		PlayerInterface[] players = new PlayerInterface[numPlayers];
-		for (int i = 0; i < numPlayers; i++) {
-			players[i] = new ReinforcementPlayer();
-		}
+		ReinforcementPlayer aiPlayer = new ReinforcementPlayer();
+		PlayerInterface[] players = {aiPlayer, aiPlayer};
 		
-		int numCurrentPlayers = 2;
-		int numRounds = 100;
+		int numRounds = 10000;
 		
-		// initially each player plays numRounds games against itself
-		for (PlayerInterface player : players) {
-			for (int round = 0; round < numRounds; round++) {
-				PlayerInterface[] currentPlayers = {player, player};
-				try {
-					Game game = new Game(currentPlayers);
-					game.runGame();
-				} catch (PlayerNumberException e) {
-					System.out.println("wtf? that's not meant to happen!");
-				}
-			}
-		}
+		long startTime = System.currentTimeMillis();
 		
-		// then there's a staggered training
-		while (numCurrentPlayers <= numPlayers) {
-			for (int round = 0; round < numRounds; round++) {
-				// one complete round of training
-				for (int i = 0; i < numCurrentPlayers; i++) {
-					for (int j = 0; j < numCurrentPlayers; j++) {
-						PlayerInterface[] currentPlayers = {players[i], players[j]};
-						try {
-							Game game = new Game(currentPlayers);
-							game.runGame();
-						} catch (PlayerNumberException e) {
-							System.out.println("wtf? that's not meant to happen!");
-						}
-					}
-				}
-			}
-			// add 2 new players for the next round
-			numCurrentPlayers += 2;
-			System.out.println(numCurrentPlayers);
-		}
-		
-		// once initial staggered rounds are done, run several full rounds
-		numCurrentPlayers = numPlayers;
-		numRounds = 1000;
 		for (int round = 0; round < numRounds; round++) {
-			// one complete round of training
-			for (int i = 0; i < numCurrentPlayers; i++) {
-				for (int j = 0; j < numCurrentPlayers; j++) {
-					PlayerInterface currentPlayers[] = {players[i], players[j]};
-					try {
-						Game game = new Game(currentPlayers);
-						game.runGame();
-					} catch (PlayerNumberException e) {
-						System.out.println("wtf? that's not meant to happen!");
-					}
-				}
+			try {
+				Game game = new Game(players);
+				game.runGame();
+			} catch (PlayerNumberException e) {
+				System.out.println("wtf? that's not meant to happen!");
 			}
 		}
 		
-		
-		
-		
-//		for (int i = 0; i < 100; i++) {
-//			try {
-//				Game game = new Game(players);
-//				game.runGame();
-//			} catch (PlayerNumberException e) {
-//				System.out.println("wtf? that's not meant to happen!");
-//			}
-//			
-//		}
+		long endTime = System.currentTimeMillis();
+
+		double duration = (double)(endTime - startTime) / 1000.0;
+		String strDuration = String.format("%.2f", duration);
+		System.out.println("Training took " + strDuration + "s");
 		
 		HumanPlayer me = new HumanPlayer("H");
-		PlayerInterface[] currentPlayers = {players[numPlayers - 1], me};
+		players[1] = me;
 		boolean cont = true;
 		while (cont) {
 			try {
-				Game game = new Game(currentPlayers);
+				Game game = new Game(players);
 				game.runGame(true);
 			} catch (PlayerNumberException e) {
 				System.out.println("wtf? that's not meant to happen!");
@@ -105,17 +47,15 @@ public class Main {
 		}
 		
 		
-		
-		
 		System.out.println("Change roles");
 		
-		currentPlayers[0] = me;
-		currentPlayers[1] = players[numPlayers - 1];
+		players[0] = me;
+		players[1] = aiPlayer;
 		
 		cont = true;
 		while (cont) {
 			try {
-				Game game = new Game(currentPlayers);
+				Game game = new Game(players);
 				game.runGame(true);
 			} catch (PlayerNumberException e) {
 				System.out.println("wtf? that's not meant to happen!");
