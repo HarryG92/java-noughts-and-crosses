@@ -22,12 +22,26 @@ public class Main {
 		int numCurrentPlayers = 2;
 		int numRounds = 100;
 		
+		// initially each player plays numRounds games against itself
+		for (PlayerInterface player : players) {
+			for (int round = 0; round < numRounds; round++) {
+				PlayerInterface[] currentPlayers = {player, player};
+				try {
+					Game game = new Game(currentPlayers);
+					game.runGame();
+				} catch (PlayerNumberException e) {
+					System.out.println("wtf? that's not meant to happen!");
+				}
+			}
+		}
+		
+		// then there's a staggered training
 		while (numCurrentPlayers <= numPlayers) {
 			for (int round = 0; round < numRounds; round++) {
 				// one complete round of training
 				for (int i = 0; i < numCurrentPlayers; i++) {
 					for (int j = 0; j < numCurrentPlayers; j++) {
-						PlayerInterface currentPlayers[] = {players[i], players[j]};
+						PlayerInterface[] currentPlayers = {players[i], players[j]};
 						try {
 							Game game = new Game(currentPlayers);
 							game.runGame();
@@ -42,7 +56,7 @@ public class Main {
 			System.out.println(numCurrentPlayers);
 		}
 		
-		// once initial staggered rounds are done, run several full round
+		// once initial staggered rounds are done, run several full rounds
 		numCurrentPlayers = numPlayers;
 		numRounds = 1000;
 		for (int round = 0; round < numRounds; round++) {
