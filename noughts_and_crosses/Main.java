@@ -7,21 +7,48 @@ public class Main {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		ReinforcementPlayer aiPlayer = new ReinforcementPlayer();
-		PlayerInterface[] players = {aiPlayer, aiPlayer};
+		int numRounds = 100;
+		int numPlayers = 100;
 		
-		int numRounds = 10000;
+		PlayerInterface[] players = new PlayerInterface[numPlayers];
+		for (int player = 0; player < numPlayers; player++) {
+			players[player] = new ReinforcementPlayer();
+		}
+		
+		PlayerInterface[] currentPlayers = new PlayerInterface[2];
 		
 		long startTime = System.currentTimeMillis();
 		
-		for (int round = 0; round < numRounds; round++) {
-			try {
-				Game game = new Game(players);
-				game.runGame();
-			} catch (PlayerNumberException e) {
-				System.out.println("wtf? that's not meant to happen!");
+		// initially each player trains against itself
+		for (PlayerInterface player : players) {
+			for (int round = 0; round < numRounds; round++) {
+				currentPlayers[0] = player;
+				currentPlayers[1] = player;
+				try {
+					Game game = new Game(currentPlayers);
+					game.runGame();
+				} catch (PlayerNumberException e) {
+					System.out.println("wtf? that's not meant to happen!");
+				}
 			}
 		}
+		
+		// then each player plays each other
+		for (int round = 0; round < numRounds; round++) {
+			for (PlayerInterface player1 : players) {
+				currentPlayers[0] = player1;
+				for (PlayerInterface player2: players) {
+					currentPlayers[1] = player2;
+					try {
+						Game game = new Game(currentPlayers);
+						game.runGame();
+					} catch (PlayerNumberException e) {
+						System.out.println("wtf? that's not meant to happen!");
+					}
+				}
+			}
+		}
+		
 		
 		long endTime = System.currentTimeMillis();
 
@@ -30,11 +57,12 @@ public class Main {
 		System.out.println("Training took " + strDuration + "s");
 		
 		HumanPlayer me = new HumanPlayer("H");
-		players[1] = me;
+		currentPlayers[0] = players[0];
+		currentPlayers[1] = me;
 		boolean cont = true;
 		while (cont) {
 			try {
-				Game game = new Game(players);
+				Game game = new Game(currentPlayers);
 				game.runGame(true);
 			} catch (PlayerNumberException e) {
 				System.out.println("wtf? that's not meant to happen!");
@@ -49,13 +77,13 @@ public class Main {
 		
 		System.out.println("Change roles");
 		
-		players[0] = me;
-		players[1] = aiPlayer;
+		currentPlayers[0] = me;
+		currentPlayers[1] = players[0];
 		
 		cont = true;
 		while (cont) {
 			try {
-				Game game = new Game(players);
+				Game game = new Game(currentPlayers);
 				game.runGame(true);
 			} catch (PlayerNumberException e) {
 				System.out.println("wtf? that's not meant to happen!");
@@ -66,31 +94,6 @@ public class Main {
 				cont = false;
 			}
 		}
-		
-		
-//		HumanPlayer player1, player2;
-//		player1 = new HumanPlayer("H");
-//		player2 = new HumanPlayer("M");
-//		HumanPlayer[] players = {player1, player2};
-//		
-//		try {
-//			Game game = new Game(players);
-//			game.runGame();
-//		} catch(PlayerNumberException e) {
-//			System.out.println(e);
-//		}
-//		
-//		
-//		System.out.println("And now the other way around!");
-//		players[0] = player2;
-//		players[1] = player1;
-//		
-//		try {
-//			Game game = new Game(players);
-//			game.runGame();
-//		} catch(PlayerNumberException e) {
-//			System.out.println(e);
-//		}
 		
 	}
 
