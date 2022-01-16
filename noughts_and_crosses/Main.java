@@ -8,13 +8,19 @@ public class Main {
 		Scanner scanner = new Scanner(System.in);
 		
 		int numRounds = 100;
-		int numPlayers = 100;
+		int numPlayers = 150;
 		
 		PlayerInterface[] players = new PlayerInterface[numPlayers];
-		// set up half ReinforcementPlayers, half SymmetrisedReinforcementPlayers
-		for (int player = 0; player < numPlayers / 2; player++) {
-			players[2 * player] = new ReinforcementPlayer();
-			players[2 * player + 1] = new SymmetrisedReinforcementPlayer();
+		// set up one third ReinforcementPlayers, one third SymmetrisedReinforcementPlayers,
+		// one third RandomPlayers
+		for (int player = 0; player < numPlayers; player++) {
+			if (player % 3 == 0) {
+				players[player] = new ReinforcementPlayer();
+			} else if (player % 3 == 1) {
+				players[player] = new SymmetrisedReinforcementPlayer();
+			} else {
+				players[player] = new RandomPlayer();
+			}
 		}
 		
 		PlayerInterface[] currentPlayers = new PlayerInterface[2];
