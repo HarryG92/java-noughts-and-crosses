@@ -8,7 +8,7 @@ public class Main {
 		Scanner scanner = new Scanner(System.in);
 		
 		int numRounds = 100;
-		int numPlayers = 10;
+		int numPlayers = 100;
 		
 		PlayerInterface[] players = new PlayerInterface[numPlayers];
 		// set up half ReinforcementPlayers, half SymmetrisedReinforcementPlayers

@@ -179,7 +179,7 @@ public class MoveSelector {
 		Random random = new Random();
 		double max = accumulated[accumulated.length - 1];
 		int maxInt = (int)Math.ceil(max);
-		int choice = random.nextInt(maxInt);
+		double choice = random.nextDouble(maxInt);
 		for (int i = 0; i < accumulated.length; i++) {
 			if (accumulated[i] > choice) {
 				return i;
