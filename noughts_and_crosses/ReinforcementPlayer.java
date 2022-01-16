@@ -2,13 +2,13 @@ package noughts_and_crosses;
 import java.util.HashMap;
 
 public class ReinforcementPlayer extends Player {
-	private HashMap<GameState, MoveSelector> moveSelectors = new HashMap<GameState, MoveSelector>();
+	protected HashMap<GameState, MoveSelector> moveSelectors;
 	
 	// for tracking current game, for learning at the end
-	private HashMap<GameState, Move> movesPlayed;
-	private GameState lastState;
-	private Move lastMove;
-	private double learningRate;
+	protected HashMap<GameState, Move> movesPlayed;
+	protected GameState lastState;
+	protected Move lastMove;
+	protected double learningRate;
 	
 	public ReinforcementPlayer() {
 		this(1.05);
@@ -16,6 +16,7 @@ public class ReinforcementPlayer extends Player {
 	
 	public ReinforcementPlayer(double rate) {
 		this.learningRate = rate;
+		 this.moveSelectors = new HashMap<GameState, MoveSelector>();
 	}
 	
 	@Override public void startGame() {
@@ -24,6 +25,26 @@ public class ReinforcementPlayer extends Player {
 	
 	@Override
 	public Move getMove(Board board, boolean verbose) {
+		GameState keyState = this.findKeyState(board);
+		MoveSelector selector = this.moveSelectors.get(keyState);
+		Move chosenMove = selector.selectMove(verbose);
+		this.movesPlayed.put(keyState, chosenMove);
+		this.lastMove = chosenMove;
+		this.lastState = keyState;
+		return chosenMove;
+	}
+	
+	/**
+	 * finds the previous GameState used as a key in this.moveSelectors
+	 * and matching the GameState of the Board, if such exists, or creates
+	 * a new entry in this.moveSelectors so that the current GameState is
+	 * the key 
+	 * @param board the Board whose GameState is to be compared with keys of
+	 *              this.moveSelectors
+	 * @return a GameState which is a key in this.moveSelectors and
+	 *         matches currentState (represents the same game)
+	 */
+	protected GameState findKeyState(Board board) {
 		boolean hasSeenBefore = false;
 		// need to take a copy of the game state to avoid passing by reference
 		GameState keyState = new GameState(board.board);
@@ -40,16 +61,12 @@ public class ReinforcementPlayer extends Player {
 			this.moveSelectors.put(keyState, selector);
 		}
 		
-		MoveSelector selector = this.moveSelectors.get(keyState);
-		Move chosenMove = selector.selectMove(verbose);
-		this.movesPlayed.put(keyState, chosenMove);
-		this.lastMove = chosenMove;
-		this.lastState = keyState;
-		return chosenMove;
+		return keyState;
 	}
 	
 	@Override
-	public int forfeit() {
+ 	public int forfeit() {
+		System.out.println("Forfeited!");
 		this.numForfeits += 1;
 		MoveSelector selector = this.moveSelectors.get(this.lastState);
 		selector.zeroOdds(this.lastMove);

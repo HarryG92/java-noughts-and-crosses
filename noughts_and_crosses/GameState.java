@@ -25,6 +25,27 @@ public class GameState {
 		}
 	}
 	
+	public GameState(char[][] state) {
+		int numRows = state.length;
+		int numCols = state[0].length;
+		if (numRows != this.BOARD_SIZE | numCols != this.BOARD_SIZE) {
+			String error = String.format("Number of rows and columns must be %d", this.BOARD_SIZE);
+			throw new IllegalArgumentException(error);
+		}
+		this.state = new char[this.BOARD_SIZE][this.BOARD_SIZE];
+		this.turn = 0;
+		for (int row = 0; row < numRows; row++) {
+			for (int col = 0; col < numCols; col++) {
+				if (state[row][col] == 'X' | state[row][col] == 'O') {
+					this.state[row][col] = state[row][col];
+					this.turn += 1;
+				} else {
+					this.state[row][col] = ' ';
+				}
+			}
+		}
+	}
+	
 	/**
 	 * checks if another GameState object represents the same state 
 	 * @param that the other GameState object to be compared to this
