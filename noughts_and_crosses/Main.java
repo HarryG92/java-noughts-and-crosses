@@ -9,6 +9,7 @@ public class Main {
 		
 		int numRounds = 200;
 		int numPlayers = 100;
+		int numStages = 4; //stages in which to introduce players
 		
 		PlayerInterface[] players = new PlayerInterface[numPlayers];
 		
@@ -32,9 +33,15 @@ public class Main {
 		
 		long startTime = System.currentTimeMillis();
 		
+		int roundsPerStage = numRounds / numStages;
+		int newPlayersPerStage = numPlayers / numStages;
+		int numParticipatingPlayers = 0;
 		for (int round = 0; round < numRounds; round++) {
-			for (int i = 0; i < numPlayers; i++) {
-				for (int j = 0; j < numPlayers; j++) {
+			if (round % roundsPerStage == 0) {
+				numParticipatingPlayers += newPlayersPerStage;
+			}
+			for (int i = 0; i < numParticipatingPlayers; i++) {
+				for (int j = 0; j < numParticipatingPlayers; j++) {
 					if (i % 2 == 0 & j % 2 == 0) { // if both players can learn
 						currentPlayers[0] = players[i];
 						currentPlayers[1] = players[j];

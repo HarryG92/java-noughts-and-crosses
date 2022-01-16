@@ -28,6 +28,14 @@ public class Game {
 		this.players = players;
 	}
 
+	/**
+	 * runs a complete game, from start to finish.
+	 * Asks each player in turn for their move,
+	 * and makes those moves on the board
+	 * @return a char representing the outcome
+	 *         of the game. 'X' or 'O' for the winner,
+	 *         or 'D' for a draw
+	 */
 	public char runGame() {
 		return this.runGame(false);
 	}
