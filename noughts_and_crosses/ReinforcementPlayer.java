@@ -1,9 +1,7 @@
 package noughts_and_crosses;
-import java.util.HashMap;
 
 public class ReinforcementPlayer extends RandomPlayer {
 	// for tracking current game, for learning at the end
-	protected HashMap<GameState, Move> movesPlayed;
 	protected GameState lastState;
 	protected Move lastMove;
 	protected double learningRate;
@@ -15,16 +13,11 @@ public class ReinforcementPlayer extends RandomPlayer {
 	public ReinforcementPlayer(double rate) {
 		super();
 		this.learningRate = rate;
-		this.moveSelectors = new HashMap<GameState, MoveSelector>();
 	}
-	
-	@Override public void startGame() {
-		this.movesPlayed = new HashMap<GameState, Move>();
-	}
+
 	
 	@Override
  	public int forfeit() {
-		System.out.println("Forfeited!");
 		this.numForfeits += 1;
 		MoveSelector selector = this.moveSelectors.get(this.lastState);
 		selector.zeroOdds(this.lastMove);

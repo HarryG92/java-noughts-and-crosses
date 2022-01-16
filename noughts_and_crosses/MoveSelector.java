@@ -91,7 +91,6 @@ public class MoveSelector {
 		return maxOdds;
 	}
 
-	
 	/**
 	 * simplifies the odds ratio by dividing through by a
 	 * constant (with integral division - i.e., quotient)
@@ -247,5 +246,16 @@ public class MoveSelector {
 			this.printOdds();
 		}
 		return this.selectMove();
+	}
+
+	/**
+	 * sets the odds of each move to a random amount
+	 */
+	public void randomiseOdds() {
+		for (Move move : this.moveOdds.keySet()) {
+			Random random = new Random();
+			double odds = random.nextDouble();
+			this.moveOdds.put(move, odds);
+		}
 	}
 }

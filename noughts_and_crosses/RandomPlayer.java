@@ -3,16 +3,23 @@ package noughts_and_crosses;
 import java.util.HashMap;
 
 public class RandomPlayer extends Player {
-
+	protected HashMap<GameState, Move> movesPlayed;
 	protected HashMap<GameState, MoveSelector> moveSelectors;
+	boolean randomise;
 
-	public RandomPlayer() {
+	public RandomPlayer(boolean randomise) {
 		super();
+		this.moveSelectors = new HashMap<GameState, MoveSelector>();
+		this.randomise = randomise;
+	}
+	
+	public RandomPlayer() {
+		this(false);
 	}
 	
 	@Override
 	public void startGame() {
-		// no setup needed for a basic RandomPlayer
+		this.movesPlayed = new HashMap<GameState, Move>();
 	}
 
 	@Override
@@ -20,16 +27,19 @@ public class RandomPlayer extends Player {
 		GameState keyState = this.findKeyState(board);
 		MoveSelector selector = this.moveSelectors.get(keyState);
 		Move chosenMove = selector.selectMove(verbose);
+		this.movesPlayed.put(keyState, chosenMove);
 		return chosenMove;
 	}
 
+	
 	/**
 	 * finds the previous GameState used as a key in this.moveSelectors
 	 * and matching the GameState of the Board, if such exists, or creates
 	 * a new entry in this.moveSelectors so that the current GameState is
-	 * the key 
-	 * @param board the Board whose GameState is to be compared with keys of
-	 *              this.moveSelectors
+	 * the key. If this.randomise = true, the initial odds of each move
+	 * will be random; otherwise, they will be uniform
+	 * @param board     the Board whose GameState is to be compared with keys of
+	 *                  this.moveSelectors
 	 * @return a GameState which is a key in this.moveSelectors and
 	 *         matches currentState (represents the same game)
 	 */
@@ -47,6 +57,9 @@ public class RandomPlayer extends Player {
 		
 		if (!hasSeenBefore) {
 			MoveSelector selector = new MoveSelector(board);
+			if (this.randomise) {
+				selector.randomiseOdds();
+			}
 			this.moveSelectors.put(keyState, selector);
 		}
 		
@@ -76,7 +89,6 @@ public class RandomPlayer extends Player {
 	@Override
 	public int lose(int playerNum) {
 		this.numLosses += 1;
-		System.out.println("You lost :( Better luck next time!");
 		return this.numLosses;
 	}
 
