@@ -2,6 +2,20 @@ package noughts_and_crosses;
 
 import java.util.HashMap;
 
+/**
+ * A RandomPlayer is a Player that randomly chooses moves at each turn.
+ * The first time it sees a particular GameState, it lists all legal moves
+ * in that state, and assigns each a probability. Every time it sees that
+ * GameState again, it looks up the probabilities it has assigned, and
+ * selects a move to play according to those probabilities. The probabilities
+ * can be assigned uniformly (so each legal move is equally likely), or at
+ * random (so in each GameState it has a random but fixed probability
+ * distribution of moves).
+ * It is mainly intended as a base class for various learning Player classes,
+ * but is not an abstract class, to allow non-learning random players
+ * @author H Gulliver
+ *
+ */
 public class RandomPlayer extends Player {
 	protected HashMap<GameState, Move> movesPlayed;
 	protected HashMap<GameState, MoveSelector> moveSelectors;

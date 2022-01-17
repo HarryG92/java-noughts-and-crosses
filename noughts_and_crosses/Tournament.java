@@ -1,5 +1,13 @@
 package noughts_and_crosses;
 
+/**
+ * A Tournament object runs a specified number of games between a given collection of players,
+ * and optionally records the results to provide stats and a ranking.
+ * A Tournament without results recorded is suitable for training rounds, and then a second
+ * Tournament with results for determining the strongest players
+ * @author H Gulliver
+ *
+ */
 public class Tournament {
 	PlayerInterface[] players;
 	int numRounds;
@@ -157,5 +165,22 @@ public class Tournament {
 			}
 		}
 		return summary;
+	}
+
+	/**
+	 * Ranks the players based on their performance in the tournament.
+	 * The ordering used for the ranking is number of wins (more wins means
+	 * higher ranking), with ties resolved by number of losses (more losses
+	 * means lower ranking). When two players have the same number of wins
+	 * and losses, this method may rank them in either order relative to
+	 * each other
+	 * @return an array of PlayerInterfaces, consisting of all of this.players,
+	 *         in order of highest ranked first to lowest ranked last
+	 */
+	public PlayerInterface[] rankPlayers() {
+		int[][] playerResults = new int[this.numPlayers][3];
+		for (int player = 0; player < this.numPlayers; player++) {
+			playerResults[player] = this.reportSummaryByPlayer(player);
+		}
 	}
 }
