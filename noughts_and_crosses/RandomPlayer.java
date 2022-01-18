@@ -12,7 +12,9 @@ import java.util.HashMap;
  * random (so in each GameState it has a random but fixed probability
  * distribution of moves).
  * It is mainly intended as a base class for various learning Player classes,
- * but is not an abstract class, to allow non-learning random players
+ * but is not an abstract class, to allow non-learning random players - this
+ * can provide a baseline for the win/loss/draw rates expected of a random
+ * player, to compare learning players against
  * @author H Gulliver
  *
  */

@@ -11,7 +11,7 @@ package noughts_and_crosses;
 public class Tournament {
 	PlayerInterface[] players;
 	int numRounds;
-	char[][][] results;
+	RoundResults[] results;
 	boolean recordResults;
 	int numPlayers;
 	
@@ -24,8 +24,24 @@ public class Tournament {
 		this.numPlayers = players.length;
 		this.numRounds = numRounds;
 		if (recordResults) {
-			this.results = new char[numPlayers][numRounds][numPlayers];
+			this.results = new RoundResults[numRounds];
 		}
+	}
+	
+	class RoundResults {
+		int roundNumber;
+		char[][] results;
+		
+		RoundResults(int roundNumber) {
+			this.roundNumber = roundNumber;
+			int numPlayers = Tournament.this.numPlayers;
+			this.results = new char[numPlayers][numPlayers];
+		}
+		
+		public void recordResult(int player1, int player2, char result) {
+			this.results[player1][player2] = result;
+		}
+		
 	}
 	
 	/**
@@ -69,7 +85,7 @@ public class Tournament {
 	 *               if 'D', indicates a draw. No other value
 	 *               should be passed
 	 */
-	private void recordResults(int round, int player1, int player2, char result) {
+	private void recordRoundResults(int round, int player1, int player2, char result) {
 		if (result == 'O') {
 			this.results[player1][round][player2] = 'W';
 			this.results[player2][round][player1] = 'L';
