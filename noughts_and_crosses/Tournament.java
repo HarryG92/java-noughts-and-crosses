@@ -1,4 +1,5 @@
 package noughts_and_crosses;
+import java.util.Arrays;
 
 /**
  * A Tournament object runs a specified number of games between a given collection of players,
@@ -12,8 +13,8 @@ public class Tournament {
 	PlayerInterface[] players;
 	int numRounds;
 	RoundResults[] results;
-	boolean recordResults;
 	int numPlayers;
+	final boolean recordResults;
 	
 	public Tournament(PlayerInterface[] players, int numRounds) {
 		this(players, numRounds, true);
@@ -26,8 +27,15 @@ public class Tournament {
 		if (recordResults) {
 			this.results = new RoundResults[numRounds];
 		}
+		this.runTournament();
 	}
 	
+	/**
+	 * a RoundResults objects stores the results of an individual round of the
+	 * Tournament - the outcome of the game between each pair of players
+	 * @author H Gulliver
+	 *
+	 */
 	class RoundResults {
 		int roundNumber;
 		char[][] results;
@@ -38,19 +46,51 @@ public class Tournament {
 			this.results = new char[numPlayers][numPlayers];
 		}
 		
-		public void recordResult(int player1, int player2, char result) {
+		/**
+		 * records the result of a single game in the round
+		 * @param player1 an int, the index of the first player
+		 * @param player2 an int, the index of the second player
+		 * @param result  a char, 'O' if first player one, 'X' if
+		 *                second player one, 'D' if draw
+		 */
+		void recordResult(int player1, int player2, char result) {
 			this.results[player1][player2] = result;
 		}
 		
+		/**
+		 * returns all the results of games played by a specified player
+		 * in this round
+		 * @param player an int, the index of the player whose results are wanted
+		 * @return an array of ints, recording wins, losses, and draws
+		 */
+		PlayerResults reportResultsByPlayer(int player) {
+			PlayerResults results = new PlayerResults(Tournament.this.players[player]);
+			char noughtsResult;
+			char crossesResult;
+			for (int opponent = 0; opponent < Tournament.this.numPlayers; opponent++) {
+				if (player == opponent) {
+					continue;
+				}
+				noughtsResult = this.results[player][opponent];
+				results.addResultAsNoughts(noughtsResult);
+				crossesResult = this.results[opponent][player];
+				results.addResultAsCrosses(crossesResult);
+			}
+			return results;
+		}
 	}
 	
 	/**
 	 * runs a sequence of games, in numRounds rounds. In each round,
-	 * every player plays every other player (not itself)
+	 * every player plays every other player (not itself) twice - once
+	 * as noughts (first player), once as crosses (second player)
 	 */
 	public void runTournament() {
 		PlayerInterface[] currentPlayers = new PlayerInterface[2];
 		for (int round = 0; round < this.numRounds; round++) {
+			if (this.recordResults) {
+				this.results[round] = new RoundResults(round);
+			}
 			for (int i = 0; i < this.numPlayers; i++) {
 				currentPlayers[0] = this.players[i];
 				for (int j = 0; j < this.numPlayers; j++) {
@@ -62,7 +102,7 @@ public class Tournament {
 						Game game = new Game(currentPlayers);
 						char result = game.runGame();
 						if (this.recordResults) {
-							this.recordResults(round, i, j, result);
+							this.results[round].recordResult(i, j, result);
 						}
 					} catch (PlayerNumberException e) {
 						String msg = String.format("Error in round %d, with players %d and %d", round, i, j);
@@ -73,114 +113,20 @@ public class Tournament {
 			}
 		}
 	}
-	
-	/**
-	 * records the result of a particular round for each player
-	 * @param round   an int, the round of the tournament
-	 * @param player1 an int, the index of the noughts player
-	 *                in this.players
-	 * @param player2 an int, the index of the crosses player
-	 *                in this.players
-	 * @param result a char; if 'O' or 'X', indicates the winner,
-	 *               if 'D', indicates a draw. No other value
-	 *               should be passed
-	 */
-	private void recordRoundResults(int round, int player1, int player2, char result) {
-		if (result == 'O') {
-			this.results[player1][round][player2] = 'W';
-			this.results[player2][round][player1] = 'L';
-		} else if (result == 'X') {
-			this.results[player1][round][player2] = 'L';
-			this.results[player2][round][player1] = 'W';
-		} else if (result == 'D') {
-			this.results[player1][round][player2] = 'D';
-			this.results[player2][round][player1] = 'D';
-		}
-	}
 
 	/**
-	 * reports the results, by round, for the specified player
-	 * @param player an int, indexing the chosen player in this.players
-	 * @return an int[numRounds][3] array; each row is a round of the tournament,
-	 * 		   and records {numWins, numLosses, numDraws} for that round
+	 * gets the results of a particular player in the tournament
+	 * @param player an int, the index of the player whose results should be given
+	 * @return a PlayerResults object recording the player's results
 	 */
-	public int[][] reportResultsByPlayer(int player) {
-		int[][] results = new int[this.numRounds][3]; // 3 for win, loss, draw
+	public PlayerResults reportPlayerResults(int playerNumber) {
+		PlayerInterface player = this.players[playerNumber];
+		PlayerResults results = new PlayerResults(player);
 		for (int round = 0; round < this.numRounds; round++) {
-			int wins = 0;
-			int losses = 0;
-			int draws = 0;
-			char[] roundResults = this.results[player][round];
-			for (int opponent = 0; opponent < this.numPlayers; opponent++) {
-				char result = roundResults[opponent]; // note: will be null when opponent == player
-				if (result == 'W') {
-					wins += 1;
-				} else if (result == 'L') {
-					losses += 1;
-				} else if (result == 'D') {
-					draws += 1;
-				}
-			}
-			results[round][0] = wins;
-			results[round][1] = losses;
-			results[round][2] = draws;
+			RoundResults roundResults = this.results[round];
+			results.add(roundResults.reportResultsByPlayer(playerNumber));
 		}
 		return results;
-	}
-
-	/**
-	 * reports the results, by player, for the specified round
-	 * @param round the round of the tournament for which results
-	 *              should be reported
-	 * @return an int[3][numPlayers] array; rows are wins, losses,
-	 *         and draws, respectively, and record numbers for each
-	 *         player in this.players in turn
-	 */
-	public int[][] reportResultsByRound(int round) {
-		int[][] results = new int[this.numPlayers][3]; // 3 for "win, loss, draw"
-		for (int player = 0; player < this.numPlayers; player++) {
-			int wins = 0;
-			int losses = 0;
-			int draws = 0;
-			for (int opponent = 0; opponent < this.numPlayers; opponent++) {
-				char result = this.results[player][round][opponent]; // will be null when opponent == player
-				if (result == 'W') {
-					wins += 1;
-				} else if (result == 'L') {
-					losses += 1;
-				} else if (result == 'D') {
-					draws += 1;
-				}
-			}
-			results[player][0] = wins;
-			results[player][1] = losses;
-			results[player][2] = draws;
-		}
-		return results;
-	}
-
-	/**
-	 * returns a summary of the wins, losses, and draws for the
-	 * specified player
-	 * @param player an int; the index in this.players of the player
-	 *               whose results should be summarised
-	 * @return an int[3] array, recording {numWins, numLosses, numDraws}
-	 */
-	public int[] reportSummaryByPlayer(int player) {
-		int[] summary = {0, 0, 0}; // "wins, losses, draws"
-		for (int round = 0; round < this.numRounds; round++) {
-			for (int opponent = 0; opponent < this.numPlayers; opponent++) {
-				char result = this.results[player][round][opponent];
-				if (result == 'W') {
-					summary[0] += 1;
-				} else if (result == 'L') {
-					summary[1] += 1;
-				} else if (result == 'D') {
-					summary[2] += 1;
-				} 
-			}
-		}
-		return summary;
 	}
 
 	/**
@@ -190,13 +136,34 @@ public class Tournament {
 	 * means lower ranking). When two players have the same number of wins
 	 * and losses, this method may rank them in either order relative to
 	 * each other
-	 * @return an array of PlayerInterfaces, consisting of all of this.players,
+	 * @return an array of PlayerResults, one for each player in this.players,
 	 *         in order of highest ranked first to lowest ranked last
 	 */
-	public PlayerInterface[] rankPlayers() {
-		int[][] playerResults = new int[this.numPlayers][3];
+	public PlayerResults[] getRankedResults() {
+		PlayerResults[] results = new PlayerResults[this.numPlayers];
 		for (int player = 0; player < this.numPlayers; player++) {
-			playerResults[player] = this.reportSummaryByPlayer(player);
+			results[player] = this.reportPlayerResults(player);
 		}
+		Arrays.sort(results);
+		return results;
+	}
+	
+	/**
+	 * Ranks the players based on their performance in the tournament.
+	 * The ordering used for the ranking is number of wins (more wins means
+	 * higher ranking), with ties resolved by number of losses (more losses
+	 * means lower ranking). When two players have the same number of wins
+	 * and losses, this method may rank them in either order relative to
+	 * each other
+	 * @return an array of PlayerInterfaces, one for each player in this.players,
+	 *         in order of highest ranked first to lowest ranked last
+	 */
+	PlayerInterface[] getPlayerRankings() {
+		PlayerResults[] results = this.getRankedResults();
+		PlayerInterface[] rankings = new PlayerInterface[this.numPlayers];
+		for (int player = 0; player < this.numPlayers; player++) {
+			rankings[player] = results[player].player;
+		}
+		return rankings;
 	}
 }
