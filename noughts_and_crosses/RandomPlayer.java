@@ -19,10 +19,7 @@ import java.util.HashMap;
  *
  */
 public class RandomPlayer extends Player {
-	protected HashMap<GameState, Move> movesPlayed;
 	protected HashMap<GameState, MoveSelector> moveSelectors;
-	protected GameState lastState;
-	protected Move lastMove;
 	boolean randomise;
 
 	public RandomPlayer(String id, boolean randomise) {
@@ -37,17 +34,14 @@ public class RandomPlayer extends Player {
 	
 	@Override
 	public void startGame() {
-		this.movesPlayed = new HashMap<GameState, Move>();
+		// pass
 	}
-
+	
 	@Override
 	public Move getMove(Board board, boolean verbose) {
 		GameState keyState = this.findKeyState(board);
 		MoveSelector selector = this.moveSelectors.get(keyState);
 		Move chosenMove = selector.selectMove(verbose);
-		this.movesPlayed.put(keyState, chosenMove);
-		this.lastMove = chosenMove;
-		this.lastState = keyState;
 		return chosenMove;
 	}
 

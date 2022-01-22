@@ -9,23 +9,23 @@ public class Main {
 		
 		int trainingRounds = 1000;
 		int competitionRounds = 1000;
-		int numPlayers = 2;
+		int numPlayers = 10;
 		// need number of different rates to be coprime with number of types of player, or else
 		// more cunning setup logic to make sure each type of player gets each learning rate
 		//double[] learningRates = {1.001, 1.002, 1.005, 1.01, 1.02, 1.05, 1.1, 1.2, 1.5};
-		double[] learningRates = {1.2, 1.2};
+		double[] learningRates = {1.01, 1.02, 1.05, 1.1, 1.2};
 		
 		Player[] players = new Player[numPlayers];
 		
 		// set up half ReinforcementPlayers, half SymmetrisedReinforcementPlayers,
 		// with 9 different learning rates - 5 of each at each rate
 		for (int player = 0; player < numPlayers; player++) {
-			int rateType = player % 9;
+			int rateType = player % 5;
 			double rate = learningRates[rateType];
 			if (player % 2 == 0) {
 				players[player] = new ReinforcementPlayer(Integer.toString(player), rate);
 			} else {
-				players[player] = new ReinforcementPlayer(Integer.toString(player), rate);
+				players[player] = new SymmetrisedReinforcementPlayer(Integer.toString(player), rate);
 			}
 		}
 		
@@ -51,10 +51,10 @@ public class Main {
 		
 		Player[] rankings = competition.getPlayerRankings();
 		// print IDs of top 10 ranked players
-		for (int rank = 0; rank < 2; rank++) {
+		for (int rank = 0; rank < 10; rank++) {
 			int playerID = Integer.parseInt(rankings[rank].playerID);
 			// print playerID, learning rate, player type (0 = Reinforcement, 1 = Symmetrised)
-			String msg = String.format("%d: %f, %d", playerID, learningRates[playerID % 9], playerID % 2);
+			String msg = String.format("%d: %f, %d", playerID, learningRates[playerID % 5], playerID % 2);
 			System.out.println(msg);
 		}
 		

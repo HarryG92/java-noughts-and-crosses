@@ -23,6 +23,9 @@ public class Game {
 			String message = String.format("Tried instantiating Game with %d players",players.length);
 			throw new PlayerNumberException(message);
 		}
+		if (players[0] == players[1]) {
+			throw new IllegalArgumentException("Players cannot play against themselves");
+		}
 		
 		this.board = board;
 		this.players = players;

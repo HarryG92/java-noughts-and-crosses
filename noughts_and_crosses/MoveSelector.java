@@ -51,8 +51,12 @@ public class MoveSelector {
 			System.out.print(move.col);
 			System.out.print(" ");
 			double odds = this.moveOdds.get(move);
-			odds = Math.round(odds * 100.0) / 100.0;
-			System.out.println(odds);
+			if (odds == 0.0) {
+				// to distinguish between actually 0 and rounded to 0 for display
+				System.out.println(0);
+			} else {
+				System.out.println(String.format("%.2f", odds));
+			}
 		}
 		System.out.print("\n");
 	}
@@ -86,7 +90,7 @@ public class MoveSelector {
 	private double findMaxOdds() {
 		double maxOdds = 0.0;
 		for (double odds : this.moveOdds.values()) {
-			maxOdds = Math.min(odds, maxOdds);
+			maxOdds = Math.max(odds, maxOdds);
 		}
 		return maxOdds;
 	}
@@ -134,33 +138,6 @@ public class MoveSelector {
 		}
 		
 	}
-	
-	/**
-	 * adds a given double onto the odds of a particular move
-	 * @param move        the move whose odds are to be changed
-	 * @param reward  a double; the odds of playing the given move
-	 *                have this added on
-	 */
-	public void addToOdds(Move move, double reward) {
-		if (!this.gameState.isMoveLegal(move)) {
-			throw new IllegalArgumentException("The move is not legal in this game state");
-		}
-		double currentValue = this.moveOdds.get(move);
-		if (reward < 0) {
-			reward = currentValue / 2; 
-		}
-		double newValue = currentValue + reward;
-		this.moveOdds.put(move, newValue);
-		
-		// divide through to simplify the odds if some are getting large
-		double maxOdds = this.findMaxOdds();
-		if (maxOdds > Math.pow(2, 20)) { // entirely arbitrary point at which to simplify
-			// orginally just always simplified, but because of integer division that
-			// ended up setting things to 1 that needed to be higher.
-			this.simplifyOdds(2.0);
-		}
-		
-	}
 
 	/**
 	 * sets the odds of the given move to 0, so the move cannot be played
@@ -195,7 +172,8 @@ public class MoveSelector {
 	 * chooses an index of an int array with odds given by the differences
 	 * of the values in it. E.g., if called with {1,2,4,8},
 	 * the odds of returning 0, 1, 2, 3 respectively will be
-	 * 1:1:2:4
+	 * 1:1:2:4. If the array is all zeroes, will simply
+	 * return any index at random
 	 * @param accumulated an array of ints, where each
 	 *                    entry is at least as big as the last;
 	 *                    this.cumulativeSum will return such an array
@@ -204,17 +182,20 @@ public class MoveSelector {
 	private int chooseRandomIndex(double[] accumulated) {
 		Random random = new Random();
 		double max = accumulated[accumulated.length - 1];
-		int maxInt = (int)Math.ceil(max);
-		double choice = random.nextDouble(maxInt);
+		if (max == 0) {
+			// if all odds are zero, just pick anything!
+			return random.nextInt(accumulated.length);
+		}
+		double choice = random.nextDouble(max);
 		for (int i = 0; i < accumulated.length; i++) {
 			if (accumulated[i] > choice) {
 				return i;
 			}
 		}
-		return accumulated.length - 1; // should never reach this,
-		// since random.nextInt() is exclusive of upper bound, so
-		// for loop should return. This is needed to convince Eclipse
-		// that the method really will return an int though
+		// should never reach this line, but needed to convince Eclipse that
+		// this method really does return! If we do get here, just return
+		// any valid index at random
+		return random.nextInt(accumulated.length);
 	}
 	
 	/**
