@@ -10,20 +10,21 @@ import java.util.Arrays;
  *
  */
 public class Tournament {
-	PlayerInterface[] players;
+	Player[] players;
 	int numRounds;
 	RoundResults[] results;
 	int numPlayers;
 	final boolean recordResults;
 	
-	public Tournament(PlayerInterface[] players, int numRounds) {
+	public Tournament(Player[] players, int numRounds) {
 		this(players, numRounds, true);
 	}
 	
-	public Tournament(PlayerInterface[] players, int numRounds, boolean recordResults) {
+	public Tournament(Player[] players, int numRounds, boolean recordResults) {
 		this.recordResults = recordResults;
 		this.numPlayers = players.length;
 		this.numRounds = numRounds;
+		this.players = players;
 		if (recordResults) {
 			this.results = new RoundResults[numRounds];
 		}
@@ -86,7 +87,7 @@ public class Tournament {
 	 * as noughts (first player), once as crosses (second player)
 	 */
 	public void runTournament() {
-		PlayerInterface[] currentPlayers = new PlayerInterface[2];
+		Player[] currentPlayers = new Player[2];
 		for (int round = 0; round < this.numRounds; round++) {
 			if (this.recordResults) {
 				this.results[round] = new RoundResults(round);
@@ -111,6 +112,7 @@ public class Tournament {
 					
 				}
 			}
+			System.out.println(round);
 		}
 	}
 
@@ -120,7 +122,7 @@ public class Tournament {
 	 * @return a PlayerResults object recording the player's results
 	 */
 	public PlayerResults reportPlayerResults(int playerNumber) {
-		PlayerInterface player = this.players[playerNumber];
+		Player player = this.players[playerNumber];
 		PlayerResults results = new PlayerResults(player);
 		for (int round = 0; round < this.numRounds; round++) {
 			RoundResults roundResults = this.results[round];
@@ -158,9 +160,9 @@ public class Tournament {
 	 * @return an array of PlayerInterfaces, one for each player in this.players,
 	 *         in order of highest ranked first to lowest ranked last
 	 */
-	PlayerInterface[] getPlayerRankings() {
+	Player[] getPlayerRankings() {
 		PlayerResults[] results = this.getRankedResults();
-		PlayerInterface[] rankings = new PlayerInterface[this.numPlayers];
+		Player[] rankings = new Player[this.numPlayers];
 		for (int player = 0; player < this.numPlayers; player++) {
 			rankings[player] = results[player].player;
 		}

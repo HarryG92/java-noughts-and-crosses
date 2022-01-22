@@ -134,6 +134,33 @@ public class MoveSelector {
 		}
 		
 	}
+	
+	/**
+	 * adds a given double onto the odds of a particular move
+	 * @param move        the move whose odds are to be changed
+	 * @param reward  a double; the odds of playing the given move
+	 *                have this added on
+	 */
+	public void addToOdds(Move move, double reward) {
+		if (!this.gameState.isMoveLegal(move)) {
+			throw new IllegalArgumentException("The move is not legal in this game state");
+		}
+		double currentValue = this.moveOdds.get(move);
+		if (reward < 0) {
+			reward = currentValue / 2; 
+		}
+		double newValue = currentValue + reward;
+		this.moveOdds.put(move, newValue);
+		
+		// divide through to simplify the odds if some are getting large
+		double maxOdds = this.findMaxOdds();
+		if (maxOdds > Math.pow(2, 20)) { // entirely arbitrary point at which to simplify
+			// orginally just always simplified, but because of integer division that
+			// ended up setting things to 1 that needed to be higher.
+			this.simplifyOdds(2.0);
+		}
+		
+	}
 
 	/**
 	 * sets the odds of the given move to 0, so the move cannot be played

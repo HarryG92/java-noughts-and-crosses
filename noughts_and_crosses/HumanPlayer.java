@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class HumanPlayer extends Player {
 	
 	public HumanPlayer(String id) {
-		this.playerID = id;
+		super(id);
 	}
 	
 	@Override

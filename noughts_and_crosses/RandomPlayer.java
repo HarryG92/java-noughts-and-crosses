@@ -21,16 +21,18 @@ import java.util.HashMap;
 public class RandomPlayer extends Player {
 	protected HashMap<GameState, Move> movesPlayed;
 	protected HashMap<GameState, MoveSelector> moveSelectors;
+	protected GameState lastState;
+	protected Move lastMove;
 	boolean randomise;
 
-	public RandomPlayer(boolean randomise) {
-		super();
+	public RandomPlayer(String id, boolean randomise) {
+		super(id);
 		this.moveSelectors = new HashMap<GameState, MoveSelector>();
 		this.randomise = randomise;
 	}
 	
-	public RandomPlayer() {
-		this(false);
+	public RandomPlayer(String id) {
+		this(id, false);
 	}
 	
 	@Override
@@ -44,6 +46,8 @@ public class RandomPlayer extends Player {
 		MoveSelector selector = this.moveSelectors.get(keyState);
 		Move chosenMove = selector.selectMove(verbose);
 		this.movesPlayed.put(keyState, chosenMove);
+		this.lastMove = chosenMove;
+		this.lastState = keyState;
 		return chosenMove;
 	}
 

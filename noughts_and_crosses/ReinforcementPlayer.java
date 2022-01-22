@@ -2,16 +2,14 @@ package noughts_and_crosses;
 
 public class ReinforcementPlayer extends RandomPlayer {
 	// for tracking current game, for learning at the end
-	protected GameState lastState;
-	protected Move lastMove;
 	protected double learningRate;
 	
-	public ReinforcementPlayer() {
-		this(1.05);
+	public ReinforcementPlayer(String id) {
+		this(id, 1.05);
 	}
 	
-	public ReinforcementPlayer(double rate) {
-		super();
+	public ReinforcementPlayer(String id, double rate) {
+		super(id);
 		this.learningRate = rate;
 	}
 
@@ -54,8 +52,12 @@ public class ReinforcementPlayer extends RandomPlayer {
 			} else {
 				MoveSelector selector = this.moveSelectors.get(state);
 				Move move = this.movesPlayed.get(state);
-				double penalty = Math.pow(this.learningRate, -(state.turn + 1));
-				selector.multiplyOdds(move, penalty);
+				if (state == this.lastState) {
+					selector.zeroOdds(move);
+				} else {
+					double penalty = Math.pow(this.learningRate, -1);//(state.turn + 1));
+					selector.multiplyOdds(move, penalty);
+				}
 			}
 		}
 		return numLosses;

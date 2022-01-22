@@ -6,6 +6,14 @@ public class SymmetrisedReinforcementPlayer extends ReinforcementPlayer {
 	private int rotation;
 	private boolean reflection;
 	
+	public SymmetrisedReinforcementPlayer(String id) {
+		super(id);
+	}
+	
+	public SymmetrisedReinforcementPlayer(String id, double rate) {
+		super(id, rate);
+	}
+	
 	/**
 	 * rotates a (copy of a) GameState by 90 degrees clockwise
 	 * @param state the GameState to be rotated

@@ -14,7 +14,11 @@ public abstract class Player implements PlayerInterface {
 	public int numDraws = 0;
 	public int numLosses = 0;
 	public int numForfeits = 0; // all forfeits are losses, so numForfeits <= numLosses always
-	String playerID;
+	public String playerID;
+	
+	public Player(String id) {
+		this.playerID = id;
+	}
 	
 	public Move getMove(Board board) {
 		return this.getMove(board, false);
