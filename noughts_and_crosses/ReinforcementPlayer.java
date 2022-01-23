@@ -80,5 +80,21 @@ public class ReinforcementPlayer extends RandomPlayer {
 		selector.zeroOdds(lastMove.move);
 		return numLosses;
 	}
+	
+	@Override
+	public int draw(int playerNum) {
+		this.numDraws += 1;
+		// if crosses player, draw is the best you can expect, so reward slightly
+		if (playerNum == 1) {
+			// draws are rewarded at an intermediate rate
+			double reducedRate = ((this.learningRate - 1) / 2) + 1;
+			for (MovePlayed movePlayed : this.movesPlayed) {
+				MoveSelector selector = this.moveSelectors.get(movePlayed.state);
+				selector.multiplyOdds(movePlayed.move, reducedRate);
+			}
+		}
+		// do not reward or penalise draws for noughts player
+		return numDraws;
+	}
 
 }
