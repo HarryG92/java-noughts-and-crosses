@@ -10,7 +10,7 @@ package noughts_and_crosses;
  * @author H Gulliver
  *
  */
-public class Move {
+public class Move implements java.io.Serializable {
 	int row;
 	int col;
 	

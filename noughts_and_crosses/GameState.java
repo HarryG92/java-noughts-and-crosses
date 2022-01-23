@@ -1,6 +1,6 @@
 package noughts_and_crosses;
 
-public class GameState {
+public class GameState implements java.io.Serializable{
 	public final int BOARD_SIZE = 3;
 	char[][] state;
 	public int turn;

@@ -21,7 +21,7 @@ import java.util.Random;
  * @author H Gulliver
  *
  */
-public class MoveSelector {
+public class MoveSelector implements java.io.Serializable{
 	final int BOARD_SIZE;
 	final GameState gameState;
 	final HashMap<Move, Double> moveOdds;
@@ -140,6 +140,15 @@ public class MoveSelector {
 	}
 
 	/**
+	 * resets odds to equal
+	 */
+	private void resetOdds() {
+		for (Move move : this.moveOdds.keySet()) {
+			this.moveOdds.put(move, 1.0);
+		}
+	}
+	
+	/**
 	 * sets the odds of the given move to 0, so the move cannot be played
 	 * @param move the Move object whose odds are to be set to 0
 	 */
@@ -148,6 +157,15 @@ public class MoveSelector {
 			throw new IllegalArgumentException("The move is not legal in this game state");
 		}
 		this.moveOdds.put(move, 0.0);
+		// don't want a situation where all odds are 0
+		boolean isNonZero = false;
+		for (double odds : this.moveOdds.values()) {
+			isNonZero |= (odds != 0.0);
+		}
+		if (!isNonZero) {
+			// reset all odds to equal
+			this.resetOdds();
+		}
 	}
 	
 	/**
