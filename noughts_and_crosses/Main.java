@@ -1,5 +1,6 @@
 package noughts_and_crosses;
 import java.util.Scanner;
+import java.io.*;
 
 public class Main {
 
@@ -7,8 +8,8 @@ public class Main {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		int trainingRounds = 1000;
-		int competitionRounds = 1000;
+		int trainingRounds = 100;
+		int competitionRounds = 100;
 		int numPlayers = 10;
 		// need number of different rates to be coprime with number of types of player, or else
 		// more cunning setup logic to make sure each type of player gets each learning rate
@@ -57,11 +58,13 @@ public class Main {
 			String msg = String.format("%d: %f, %d", playerID, learningRates[playerID % learningRates.length], playerID % 2);
 			System.out.println(msg);
 		}
+		rankings[0].serialize();
+		String filename = String.format("%s.ser", rankings[0].playerID);
 		
-		
+		Player serializedPlayer = Player.deserialize(filename);
 		
 		HumanPlayer me = new HumanPlayer("H");
-		currentPlayers[0] = rankings[0];
+		currentPlayers[0] = serializedPlayer;
 		currentPlayers[1] = me;
 		boolean cont = true;
 		while (cont) {
@@ -82,7 +85,7 @@ public class Main {
 		System.out.println("Change roles");
 		
 		currentPlayers[0] = me;
-		currentPlayers[1] = rankings[0];
+		currentPlayers[1] = serializedPlayer;
 		
 		cont = true;
 		while (cont) {

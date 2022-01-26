@@ -20,7 +20,7 @@ public class ReinforcementPlayer extends RandomPlayer {
 		this.movesPlayed = new ArrayList<MovePlayed>();
 	}
 
-	private class MovePlayed {
+	private class MovePlayed implements java.io.Serializable {
 		final GameState state;
 		final Move move;
 		

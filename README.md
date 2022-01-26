@@ -27,3 +27,10 @@ At present, the AIPlayer classes are sufficiently complex that they are broken d
 - A RandomPlayer class which maintains a collection of MoveSelectors (one for each GameState it has seen) and uses these to choose its Moves when playing
 - A ReinforcementPlayer class extending RandomPlayer; a ReinforcementPlayer tracks each GameState it sees and Move it plays in a given Game, then at the end of the Game goes back to its MoveSelectors and adjusts the odds of those Moves upwards if they led to a win, and downwards if they led to a loss (with no change for a draw)
 - A SymmetrisedReinforcementPlayer class; similar to the ReinforcementPlayer, but uses rotations and reflections to compare GameStates, so it views two GameStates as the same if they differ by a rotation or reflection, and uses this when choosing a Move. This means that SymmetrisedReinforcementPlayers end up storing fewer MoveSelectors, and should learn faster. It may also influence the strategies they learn (e.g., corner-first play vs middle-first play).
+
+
+## TO DO
+
+- GUI
+- Graphing of results - particularly as training develops
+- BayesianPlayer - have a utility function for outcomes (positive for win, negative for loss, probably 0 for draw) and an estimated probability distribution over outcomes, then play the move that maximises the expected utility
