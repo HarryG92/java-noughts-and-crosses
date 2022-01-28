@@ -8,8 +8,8 @@ public class Main {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		int trainingRounds = 100;
-		int competitionRounds = 100;
+		int trainingRounds = 10;
+		int competitionRounds = 10;
 		int numPlayers = 10;
 		// need number of different rates to be coprime with number of types of player, or else
 		// more cunning setup logic to make sure each type of player gets each learning rate
@@ -34,7 +34,7 @@ public class Main {
 		
 		long startTime = System.currentTimeMillis();
 		
-		//training
+		// training
 		Tournament training = new Tournament(players, trainingRounds, false);
 		
 		long trainingEndTime = System.currentTimeMillis();
@@ -42,6 +42,7 @@ public class Main {
 		String strDuration = String.format("%.2f", duration);
 		System.out.println("Training took " + strDuration + "s");
 		
+		// competition
 		Tournament competition = new Tournament(players, competitionRounds);
 		
 		long competitionEndTime = System.currentTimeMillis();
@@ -58,49 +59,50 @@ public class Main {
 			String msg = String.format("%d: %f, %d", playerID, learningRates[playerID % learningRates.length], playerID % 2);
 			System.out.println(msg);
 		}
-		rankings[0].serialize();
-		String filename = String.format("%s.ser", rankings[0].playerID);
-		
-		Player serializedPlayer = Player.deserialize(filename);
-		
-		HumanPlayer me = new HumanPlayer("H");
-		currentPlayers[0] = serializedPlayer;
-		currentPlayers[1] = me;
-		boolean cont = true;
-		while (cont) {
-			try {
-				Game game = new Game(currentPlayers);
-				game.runGame(true);
-			} catch (PlayerNumberException e) {
-				System.out.println("wtf? that's not meant to happen!");
-			}
-			System.out.println("Again? y/n ");
-			String confirmation = scanner.next().toLowerCase();
-			if (!confirmation.equals("y")) {
-				cont = false;
-			}
-		}
-		
-		
-		System.out.println("Change roles");
-		
-		currentPlayers[0] = me;
-		currentPlayers[1] = serializedPlayer;
-		
-		cont = true;
-		while (cont) {
-			try {
-				Game game = new Game(currentPlayers);
-				game.runGame(true);
-			} catch (PlayerNumberException e) {
-				System.out.println("wtf? that's not meant to happen!");
-			}
-			System.out.println("Again? y/n ");
-			String confirmation = scanner.next().toLowerCase();
-			if (!confirmation.equals("y")) {
-				cont = false;
-			}
-		}
+		competition.reportPlayerResults(0).plotResults();
+//		rankings[0].serialize();
+//		String filename = String.format("%s.ser", rankings[0].playerID);
+//		
+//		Player serializedPlayer = Player.deserialize(filename);
+//		
+//		HumanPlayer me = new HumanPlayer("H");
+//		currentPlayers[0] = serializedPlayer;
+//		currentPlayers[1] = me;
+//		boolean cont = true;
+//		while (cont) {
+//			try {
+//				Game game = new Game(currentPlayers);
+//				game.runGame(true);
+//			} catch (PlayerNumberException e) {
+//				System.out.println("wtf? that's not meant to happen!");
+//			}
+//			System.out.println("Again? y/n ");
+//			String confirmation = scanner.next().toLowerCase();
+//			if (!confirmation.equals("y")) {
+//				cont = false;
+//			}
+//		}
+//		
+//		
+//		System.out.println("Change roles");
+//		
+//		currentPlayers[0] = me;
+//		currentPlayers[1] = serializedPlayer;
+//		
+//		cont = true;
+//		while (cont) {
+//			try {
+//				Game game = new Game(currentPlayers);
+//				game.runGame(true);
+//			} catch (PlayerNumberException e) {
+//				System.out.println("wtf? that's not meant to happen!");
+//			}
+//			System.out.println("Again? y/n ");
+//			String confirmation = scanner.next().toLowerCase();
+//			if (!confirmation.equals("y")) {
+//				cont = false;
+//			}
+//		}
 
 	}
 

@@ -126,6 +126,7 @@ public class Tournament {
 		PlayerResults results = new PlayerResults(player);
 		for (int round = 0; round < this.numRounds; round++) {
 			RoundResults roundResults = this.results[round];
+			PlayerResults current = roundResults.reportResultsByPlayer(playerNumber);
 			results.add(roundResults.reportResultsByPlayer(playerNumber));
 		}
 		return results;

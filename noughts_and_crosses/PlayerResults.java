@@ -1,6 +1,10 @@
 package noughts_and_crosses;
 import java.util.ArrayList;
 import java.util.ListIterator;
+//graphing packages
+import java.awt.*;  
+import javax.swing.*;  
+import java.awt.geom.*;  
 
 /**
  * A PlayerResults object stores the aggregated results of a game or series of games
@@ -108,12 +112,21 @@ public class PlayerResults implements Comparable<PlayerResults> {
 		}
 	}
 	
+	/**
+	 * prints the number of wins, draws, and losses in this results object
+	 */
+	public void printResults() {
+		String results = String.format("Wins: %d, draws: %d, losses: %d", this.wins, this.draws, this.losses);
+		System.out.println(results);
+	}
+	
 	public void add (PlayerResults that) {
 		if (this.player == that.player) {
 			this.wins += that.wins;
 			this.losses += that.losses;
 			this.draws += that.draws;
 			this.total = this.wins + this.losses + this.draws;
+			this.results.addAll(that.results);
 		} else {
 			throw new IllegalArgumentException("Cannot add PlayerResults for two separate players!");
 		}
@@ -130,10 +143,12 @@ public class PlayerResults implements Comparable<PlayerResults> {
 	 */
 	private double[] cumulativeProportion(ArrayList<Character> list, char symbol) {
 		int length = list.size();
+		System.out.println(length);
 		double[] cumProp = new double[length];
 		double count = 0.0;
 		ListIterator<Character> iterator = list.listIterator();
-		for (int i = 0; i < length; i++) {
+		cumProp[0] = 0; // to avoid a 0/0 issue
+		for (int i = 1; i < length; i++) {
 			if (iterator.next() == symbol) {
 				count += 1.0;
 			}
@@ -149,7 +164,131 @@ public class PlayerResults implements Comparable<PlayerResults> {
 	 * @return an array of doubles; the ith entry records the proportion
 	 *         of games ending in result up to and including the ith game
 	 */
-	public double[] cumulativeProportionResult(char result) {
+	private double[] cumulativeProportionResult(char result) {
 		return this.cumulativeProportion(this.results, result);
+	}
+	
+	/*
+	 * gives the running proportions of each result
+	 * @return a 2D array of doubles; each row is the running proportions
+	 *         of a particular result after each game, and the rows are
+	 *         ordered win, loss, draw. So, e.g., if the sequence of results
+	 *         is W,W,L,D,L,D, this method will return
+	 *         {{1, 1, 2/3, 2/4, 2/5, 2/6},
+	 *          {0, 0, 1/3, 1/4, 2/5, 2/6},
+	 *          {0, 0, 0, 1/4, 1/5, 1/6}}
+	 */
+	private double[][] cumulativeProportionAllResults() {
+		double[][] cumProps = new double[3][this.total];
+		char[] results = {'W', 'L', 'D'};
+		for (int i = 0; i < 3; i++) {
+			cumProps[i] = this.cumulativeProportionResult(results[i]);
+		}
+		return cumProps;
+	}
+
+	/**
+	 * a ResultsPlotter object allows multiple line graphs to be plotted on the
+	 * same axes; this is designed for plotting the running proportions or total
+	 * amounts of wins, losses, and draws, to study the performance of a Player
+	 * over time
+	 * When initialised, the ResultsPlotter takes a 2D array of doubles (where each
+	 * row of the array is a sequence of y values to be plotted at equal x-increments)
+	 * and an array of colours, whose length should match the number of rows in the
+	 * double array (these are the colours the different lines will be plotted in)
+	 * @author H Gulliver
+	 *
+	 */
+	private class ResultsPlotter extends JPanel{  
+	    //initialize coordinates    
+	    int margin = 60;
+	    double[][] yVals;
+	    Color[] colors; // US spelling to be consistent with the class name
+
+	    /**
+	     * create a ResultsPlotter for plotting multiple line graphs
+	     * @param yVals  a 2D array of doubles; each row will be plotted as a line
+	     *               with equally spaced x-increments
+	     * @param colors an array of Color objects, of length matching yVals; each
+	     *               row of yVals will be plotted in the corresponding color
+	     */
+	    public ResultsPlotter(double[][] yVals, Color[] colors) {
+	    	this.yVals = yVals;
+	    	this.colors = colors;
+	    }
+	      
+	    /**
+	     * plots a line graph at regular x intervals of this.yVals
+	     * @param grf a Graphics object to plot to
+	     */
+	    protected void paintComponent(Graphics grf){
+	        super.paintComponent(grf);
+	        Graphics2D graph = (Graphics2D)grf;
+	        
+	        //Sets the value of a single preference for the rendering algorithms.
+	        graph.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        
+	        // get width and height of plotting window
+	        int width = getWidth();
+	        int height = getHeight();
+	        
+	        // draw axes
+	        graph.draw(new Line2D.Double(margin, margin, margin, height - margin));
+	        graph.draw(new Line2D.Double(margin, height - margin, width - margin, height - margin));
+	        
+	        // difference between consecutive x-values
+	        double xDiff = (double)(width - 2 * margin)/(yVals[0].length - 1);
+	        
+	        // scaling factor for y-values - proportion of total height which is within axes
+	        double scale = (double)(height - 2 * margin) / getMax();
+	        
+	        for (int line = 0; line < this.yVals.length; line++) {
+	        	graph.setPaint(this.colors[line]);
+		        
+		        double x1 = margin;
+		        double x2 = margin + xDiff;
+		        double y1 = height - margin - scale * this.yVals[line][0];
+		        double y2;
+		        
+		        // plot line graph
+		        for (int i = 0; i < yVals[line].length - 1; i++){
+		        	y2 = height - margin - scale * this.yVals[line][i + 1];
+		        	graph.draw(new Line2D.Double(x1, y1, x2, y2));
+		        	// prepare valules for next iteration
+		        	y1 = y2;
+		        	x1 = x2;
+		        	x2 += xDiff;
+		        }
+		    }
+	    }
+	        
+	     
+	    // create getMax() method to find maximum value
+	    private double getMax(){
+	        double max = -Double.MAX_VALUE;
+	        for (int i = 0; i < yVals.length; i++){
+	        	for (int j = 0; j < yVals[i].length; j++) {
+	        		max = Math.max(max, yVals[i][j]);	        		
+	        	}
+	        }
+	        return max;
+	    }
+	}
+	
+	public void plotResults() {
+		//create an instance of JFrame class  
+        JFrame frame = new JFrame();
+        
+        // set size, layout and location for frame
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        double[][] resultProportions = this.cumulativeProportionAllResults();
+        Color[] colors = new Color[3];
+        colors[0] = Color.RED;
+        colors[1] = Color.BLUE;
+        colors[2] = Color.MAGENTA;
+        frame.add(new ResultsPlotter(resultProportions, colors));
+        frame.setSize(400, 400);
+        frame.setLocation(200, 200);
+        frame.setVisible(true);
 	}
 }
