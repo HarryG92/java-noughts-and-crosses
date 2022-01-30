@@ -280,12 +280,13 @@ public class PlayerResults implements Comparable<PlayerResults> {
         JFrame frame = new JFrame();
         
         // set size, layout and location for frame
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         double[][] resultProportions = this.cumulativeProportionAllResults();
         Color[] colors = new Color[3];
         colors[0] = Color.RED;
         colors[1] = Color.BLUE;
         colors[2] = Color.MAGENTA;
+        JLabel legend = new JLabel();
         frame.add(new ResultsPlotter(resultProportions, colors));
         frame.setSize(400, 400);
         frame.setLocation(200, 200);
