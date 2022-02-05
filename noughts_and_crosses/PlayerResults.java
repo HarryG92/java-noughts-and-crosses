@@ -202,6 +202,7 @@ public class PlayerResults implements Comparable<PlayerResults> {
 	private class ResultsPlotter extends JPanel{  
 	    //initialize coordinates    
 	    int margin = 60;
+        int legendWidth = 100;
 	    double[][] yVals;
 	    Color[] colors; // US spelling to be consistent with the class name
 
@@ -234,10 +235,10 @@ public class PlayerResults implements Comparable<PlayerResults> {
 	        
 	        // draw axes
 	        graph.draw(new Line2D.Double(margin, margin, margin, height - margin));
-	        graph.draw(new Line2D.Double(margin, height - margin, width - margin, height - margin));
+	        graph.draw(new Line2D.Double(margin, height - margin, width - legendWidth - margin, height - margin));
 	        
 	        // difference between consecutive x-values
-	        double xDiff = (double)(width - 2 * margin)/(yVals[0].length - 1);
+	        double xDiff = (double)(width - 2 * margin - legendWidth)/(yVals[0].length - 1);
 	        
 	        // scaling factor for y-values - proportion of total height which is within axes
 	        double scale = (double)(height - 2 * margin) / getMax();
@@ -286,9 +287,21 @@ public class PlayerResults implements Comparable<PlayerResults> {
         colors[0] = Color.RED;
         colors[1] = Color.BLUE;
         colors[2] = Color.MAGENTA;
-        JLabel legend = new JLabel();
+        
+        ResultsPlotter plotter = new ResultsPlotter(resultProportions, colors);
+        
+        char[] results = {'W', 'L', 'D'};
+        
+        for (int i = 0; i < 3; i++) {
+        	String result = Character.toString(results[i]);
+        	JLabel label = new JLabel(result);
+	        label.setForeground(colors[i]);
+	        label.setBounds(400, 100 - 20*i, 200, 200);
+	        frame.add(label);
+        }
+        
         frame.add(new ResultsPlotter(resultProportions, colors));
-        frame.setSize(400, 400);
+        frame.setSize(400 + plotter.legendWidth, 400);
         frame.setLocation(200, 200);
         frame.setVisible(true);
 	}
